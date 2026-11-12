@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { card, getFounder, loadAll, MOCK, muted, reward, type Office, type Task } from "../data";
+import { arrivedAt, card, getFounder, loadAll, MOCK, muted, reward, type Office, type Task } from "../data";
 import { Emoji, TopBar } from "../ui";
 
 type Row = Task & { office?: Office };
@@ -55,19 +55,24 @@ export default function MyTasksPage() {
               </div>
               <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
             </div>
-            <ol className="grid grid-cols-3 gap-1.5 text-[13px]">
-              <li className="font-semibold before:mb-1.5 before:block before:h-[5px] before:rounded-full before:bg-[#0B0B0C]">claimed</li>
-              <li className="font-bold before:mb-1.5 before:block before:h-[5px] before:rounded-full before:bg-[#FF5A1F]">after photo</li>
-              <li className={`${muted} before:mb-1.5 before:block before:h-[5px] before:rounded-full before:bg-[#CDD7E2]`}>grok checks it</li>
+            <ol className="grid grid-cols-4 gap-1.5 text-[13px]">
+              {["claimed", "get there", "scan in", "after photo"].map((step, n) => {
+                const at = arrivedAt(task.office_id) ? 3 : 1; // the step the founder is on
+                return (
+                  <li
+                    key={step}
+                    className={`before:mb-1.5 before:block before:h-[5px] before:rounded-full ${
+                      n < at ? "font-semibold before:bg-[#0B0B0C]" : n === at ? "font-bold before:bg-[#FF5A1F]" : `${muted} before:bg-[#CDD7E2]`
+                    }`}
+                  >
+                    {step}
+                  </li>
+                );
+              })}
             </ol>
-            <div className="flex gap-2">
-              <Link href={`/verify/${task.id}`} className="display flex h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-[#0B0B0C] text-sm font-medium text-white">
-                <span aria-hidden>📸</span> after photo
-              </Link>
-              <Link href={`/find/pass/${task.id}`} className="display flex h-[52px] items-center justify-center gap-2 rounded-full border border-[#C9D3DF] px-5 text-sm font-medium">
-                <span aria-hidden>🎟️</span> check in
-              </Link>
-            </div>
+            <Link href={`/find/job/${task.id}`} className="display flex h-[52px] items-center justify-center gap-2 rounded-full bg-[#0B0B0C] text-sm font-medium text-white">
+              {arrivedAt(task.office_id) ? "📸 add the after photo" : "🧭 get there and scan in"}
+            </Link>
           </article>
         ))}
 

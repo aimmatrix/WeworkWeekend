@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { card, catOf, claimTask, getBalance, getFounder, ICON, loadAll, muted, reward, type Task } from "./data";
 
@@ -71,18 +72,20 @@ export function TopBar({ children, className = "" }: { children?: React.ReactNod
   );
 }
 
+/** The jobs at an office, led by the photo of what needs cleaning. Claiming one opens its job screen. */
 export function TaskList({ tasks, onChange }: { tasks: Task[]; onChange?: () => void }) {
+  const router = useRouter();
   const [busy, setBusy] = useState<Task["id"] | null>(null);
-  const [mine, setMine] = useState<Task["id"][]>([]);
   const [lost, setLost] = useState<Task["id"][]>([]);
   const me = getFounder();
 
   async function claim(id: Task["id"]) {
     setBusy(id);
     const ok = await claimTask(id, me).catch(() => false);
-    (ok ? setMine : setLost)((list) => [...list, id]);
-    setBusy(null);
     window.dispatchEvent(new Event("wallet"));
+    if (ok) return router.push(`/find/job/${id}`);
+    setLost((list) => [...list, id]);
+    setBusy(null);
     onChange?.();
   }
 
@@ -90,44 +93,52 @@ export function TaskList({ tasks, onChange }: { tasks: Task[]; onChange?: () => 
   if (!sorted.length) return <p className={`py-4 ${muted}`}>suspiciously clean. nothing to do here.</p>;
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col gap-3">
       {sorted.map((task) => {
-        const isMine = mine.includes(task.id) || (task.status !== "open" && task.claimed_by === me);
+        const isMine = task.status !== "open" && task.claimed_by === me;
         const taken = lost.includes(task.id) || (task.status !== "open" && !isMine);
-        if (taken)
-          return (
-            <li key={task.id} className={`flex min-h-[68px] items-center gap-3 rounded-3xl border border-dashed border-[#B5C1CF] bg-[#F6F9FC] py-2 pl-3.5 pr-4 ${muted}`}>
-              <Emoji task={task} className="!bg-[#E3EAF2] grayscale" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-bold">{task.title}</p>
-                <p className="truncate text-[13px]">
-                  {task.room} · +{task.credit_hours}h
-                </p>
-              </div>
-              <span className="text-[13px] font-semibold">🔒 {task.claimed_by ? `${task.claimed_by} got there first` : "someone got there first"}</span>
-            </li>
-          );
         return (
-          <li key={task.id} className={`flex min-h-[72px] items-center gap-3 py-2 pl-3.5 pr-3 ${card}`}>
-            <Emoji task={task} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">{task.title}</p>
-              <p className={`truncate text-[13px] ${muted}`}>{task.room}</p>
+          <li key={task.id} className={`overflow-hidden !rounded-[28px] ${card} ${taken ? "opacity-60" : ""}`}>
+            <div className="relative">
+              {task.before_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={task.before_url} alt={`What needs cleaning: ${task.title}`} className={`aspect-[16/10] w-full object-cover ${taken ? "grayscale" : ""}`} />
+              ) : (
+                <div className="grid aspect-[16/10] w-full place-items-center bg-[#DCE5EF] text-6xl" aria-hidden>
+                  {ICON[catOf(task)] ?? "✨"}
+                </div>
+              )}
+              <span className={`display absolute right-3 top-3 flex items-center rounded-full tabular-nums shadow-md ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
             </div>
-            <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
-            {isMine ? (
-              <Link href="/find/tasks" className="display flex h-11 shrink-0 items-center rounded-full bg-[#DDF3E6] px-4 text-[13px] font-medium text-[#0A6B3B]">
-                yours ✓
-              </Link>
-            ) : (
-              <button
-                onClick={() => claim(task.id)}
-                disabled={busy !== null}
-                className="display h-11 shrink-0 rounded-full bg-[#0B0B0C] px-4 text-[13px] font-medium text-white disabled:opacity-50"
-              >
-                {busy === task.id ? "…" : "claim"}
-              </button>
-            )}
+            <div className="flex items-center gap-3 p-3 pl-4">
+              <Emoji task={task} />
+              <div className="min-w-0 flex-1">
+                <p className="font-bold leading-snug">{task.title}</p>
+                <p className={`truncate text-[13px] ${muted}`}>{task.room}</p>
+              </div>
+              {taken ? (
+                <span className={`shrink-0 text-right text-[13px] font-semibold ${muted}`}>
+                  🔒 {task.claimed_by && task.claimed_by !== me ? `${task.claimed_by} got` : "someone got"}
+                  <br />
+                  there first
+                </span>
+              ) : isMine ? (
+                <Link
+                  href={task.status === "done" ? "/find/tasks" : `/find/job/${task.id}`}
+                  className="display flex h-11 shrink-0 items-center rounded-full bg-[#DDF3E6] px-4 text-[13px] font-medium text-[#0A6B3B]"
+                >
+                  {task.status === "done" ? "done ✓" : "yours →"}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => claim(task.id)}
+                  disabled={busy !== null}
+                  className="display h-11 shrink-0 rounded-full bg-[#0B0B0C] px-5 text-[13px] font-medium text-white disabled:opacity-50"
+                >
+                  {busy === task.id ? "…" : "i'll do it"}
+                </button>
+              )}
+            </div>
           </li>
         );
       })}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { DoorCode } from "../checkin/code";
 import { shareDoor } from "../checkin/door";
 import { card, grim, MOCK, muted, reward, type Office, type Task } from "../find/data";
 import { Emoji } from "../find/ui";
@@ -72,6 +73,7 @@ export default function CapturePage() {
         <span aria-hidden className="text-[64px] leading-none">🧽</span>
         <h1 className="display text-[32px] leading-[1.1]">{office.name} is live.</h1>
         <p className={muted}>founders can see it on the map now. expect people with bin bags on saturday.</p>
+        <DoorCode office={office} />
         <p className={`mt-2 ${muted}`}>not planning to stand at the door yourself? hand the guest list to whoever drew the short straw.</p>
         <button onClick={async () => setCopied(await shareDoor(office.id, office.name))} className={cta}>
           {copied ? "link copied. go and delegate" : "send the door list to your supervisor"}

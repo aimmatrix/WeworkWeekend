@@ -26,7 +26,6 @@ export default function OfficePage() {
     load();
   }, [load]);
 
-  const photos = [...new Set([...(office?.photo_urls ?? []), ...tasks.map((x) => x.before_url)].filter(Boolean))] as string[];
   // Assumes dirt_score is 0-10; rescale here if the backend picks another range.
   const mess = office ? Math.max(0, Math.min(10, Math.round(office.dirt_score))) : 0;
   const hours = office ? openHours(tasks, office.id) : 0;
@@ -73,20 +72,8 @@ export default function OfficePage() {
               </div>
             </dl>
 
-            {photos.length > 0 && (
-              <div>
-                <h2 className={`mb-2 px-1 text-[13px] font-bold ${muted}`}>the crime scene</h2>
-                <div className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4">
-                  {photos.map((src) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={src} src={src} alt="The office before cleaning" className="h-28 w-36 shrink-0 snap-start rounded-[18px] object-cover" />
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div>
-              <h2 className={`mb-2 px-1 text-[13px] font-bold ${muted}`}>pick your poison</h2>
+              <h2 className={`mb-2 px-1 text-[13px] font-bold ${muted}`}>pick your poison. this is what you&apos;d be cleaning</h2>
               <TaskList tasks={tasks} onChange={load} />
             </div>
           </>

@@ -65,19 +65,19 @@ const MOCK_OFFICES: Office[] = [
   { id: "o3", name: "Southbank Loft", address: "99 Upper Ground, SE1 9PP", lat: 51.5075, lng: -0.1107, crew_size: 4, dirt_score: 9, status: "live" },
 ];
 
-const t = (id: string, office_id: string, room: string, title: string, category: string, credit_hours: number): Task =>
-  ({ id, office_id, room, title, category, credit_hours, before_url: null, status: "open", claimed_by: null });
+const t = (id: string, office_id: string, room: string, title: string, category: string, credit_hours: number, photo: string): Task =>
+  ({ id, office_id, room, title, category, credit_hours, before_url: `/seed/${photo}-before.jpg`, status: "open", claimed_by: null });
 
 const MOCK_TASKS: Task[] = [
-  t("t1", "o1", "Kitchen", "De-crust the kitchen", "kitchen", 2),
-  t("t2", "o1", "Main floor", "Evict the bins", "bins", 1),
-  t("t3", "o1", "Main floor", "De-crumb the desks", "desks", 0.5),
-  t("t4", "o2", "Washroom", "Face the toilet", "toilet", 3),
-  t("t5", "o2", "Meeting room", "Un-fort the meeting room", "furniture", 0.5),
-  t("t6", "o3", "Washroom", "Face both toilets", "toilet", 3),
-  t("t7", "o3", "Kitchen", "Exorcise the kitchen", "kitchen", 2),
-  t("t8", "o3", "Open plan", "Hoover up the crumbs", "floor", 1),
-  t("t9", "o3", "Open plan", "Evict the bins", "bins", 1),
+  t("t1", "o1", "Kitchen", "De-crust the kitchen", "kitchen", 2, "kitchen"),
+  t("t2", "o1", "Main floor", "Evict the bins", "bins", 1, "kitchen"),
+  t("t3", "o1", "Main floor", "De-crumb the desks", "desks", 0.5, "openplan"),
+  t("t4", "o2", "Washroom", "Face the toilet", "toilet", 3, "bathroom"),
+  t("t5", "o2", "Meeting room", "Un-fort the meeting room", "furniture", 0.5, "meeting"),
+  t("t6", "o3", "Washroom", "Face both toilets", "toilet", 3, "bathroom"),
+  t("t7", "o3", "Kitchen", "Exorcise the kitchen", "kitchen", 2, "kitchen"),
+  t("t8", "o3", "Open plan", "Hoover up the crumbs", "floor", 1, "studio"),
+  t("t9", "o3", "Open plan", "Evict the bins", "bins", 1, "breakout"),
 ];
 
 export function mockTasks(): Task[] {
@@ -155,6 +155,42 @@ export const catOf = (task: Task) => (task.category ?? "").toLowerCase().split(/
 
 export const openHours = (tasks: Task[], officeId: Office["id"]) =>
   tasks.filter((x) => x.office_id === officeId && x.status === "open").reduce((s, x) => s + Number(x.credit_hours), 0);
+
+// ---- arriving at the door ---------------------------------------------------
+// The landlord shows a door code (as a QR and as four digits). A founder has to scan
+// or type it on site before the after-photo step opens. Kept on the founder's device.
+
+/** Four digits derived from the office id, printed under the door QR for phones that will not scan. */
+export function doorCode(officeId: Office["id"]): string {
+  let h = 0;
+  for (const c of String(officeId)) h = (h * 31 + c.charCodeAt(0)) % 10000;
+  return String(h).padStart(4, "0");
+}
+
+/** What the door QR encodes. Opening it in a phone camera also checks the founder in. */
+export const arriveUrl = (officeId: Office["id"]) => `${location.origin}/find/arrive/${encodeURIComponent(String(officeId))}`;
+
+/** True when scanned text or typed digits belong to this office's door. */
+export const isDoor = (officeId: Office["id"], text: string) =>
+  text.trim() === doorCode(officeId) || text.includes(`/find/arrive/${encodeURIComponent(String(officeId))}`);
+
+const arrivals = (): Record<string, string> =>
+  typeof localStorage === "undefined" ? {} : JSON.parse(localStorage.getItem("arrived") ?? "{}");
+
+export const arrivedAt = (officeId: Office["id"]): string | undefined => arrivals()[String(officeId)];
+
+export function markArrived(officeId: Office["id"]): void {
+  const now = new Date().toISOString();
+  localStorage.setItem("arrived", JSON.stringify({ ...arrivals(), [String(officeId)]: now }));
+  // Tick the founder off the landlord's door list too, when it lives on this device.
+  const key = `${officeId}:${getFounder()}`;
+  const list = JSON.parse(localStorage.getItem("checkins") ?? "{}");
+  if (!list[key]) localStorage.setItem("checkins", JSON.stringify({ ...list, [key]: now }));
+}
+
+/** Opens turn-by-turn directions in the phone's maps app. */
+export const directionsUrl = (office: Office) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${office.lat},${office.lng}&travelmode=transit`;
 
 // ---- shared look and copy ---------------------------------------------------
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { card, loadAll, MOCK, muted, type Office, type Task } from "../find/data";
+import { DoorCode } from "./code";
 import { clock, doorKey, getCheckins, setCheckin, shareDoor } from "./door";
 
 /** The door list: who is coming to clean, and who has been let in. Anyone with the link can run it. */
@@ -88,6 +89,8 @@ export default function DoorList() {
         <p className="mt-1 text-sm leading-snug text-[#C9D3DF]">{mood}</p>
       </div>
 
+      <DoorCode office={office} />
+
       {guests.length > 3 && (
         <input
           type="search"
@@ -126,7 +129,7 @@ export default function DoorList() {
       {guests.length > 0 && shown.length === 0 && <p className={`px-1 ${muted}`}>nobody by that name. a likely story.</p>}
 
       <div className="mt-auto flex flex-col gap-2 pt-2">
-        <p className={`px-1 text-sm leading-snug ${muted}`}>got a pass waved at you? point your camera at the code and they&apos;re ticked off here.</p>
+        <p className={`px-1 text-sm leading-snug ${muted}`}>no scan, no mop. tick people off here as they come through the door.</p>
         <button
           onClick={async () => setCopied(await shareDoor(office.id, office.name))}
           className="display h-14 rounded-full bg-[#0B0B0C] text-[15px] text-white"
