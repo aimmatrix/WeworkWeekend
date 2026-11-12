@@ -182,10 +182,29 @@ export const arrivedAt = (officeId: Office["id"]): string | undefined => arrival
 export function markArrived(officeId: Office["id"]): void {
   const now = new Date().toISOString();
   localStorage.setItem("arrived", JSON.stringify({ ...arrivals(), [String(officeId)]: now }));
+  // A fresh door scan starts a new visit, so any earlier check-out no longer applies.
+  const out = departures();
+  delete out[String(officeId)];
+  localStorage.setItem("left", JSON.stringify(out));
   // Tick the founder off the landlord's door list too, when it lives on this device.
   const key = `${officeId}:${getFounder()}`;
   const list = JSON.parse(localStorage.getItem("checkins") ?? "{}");
   if (!list[key]) localStorage.setItem("checkins", JSON.stringify({ ...list, [key]: now }));
+}
+
+const departures = (): Record<string, string> =>
+  typeof localStorage === "undefined" ? {} : JSON.parse(localStorage.getItem("left") ?? "{}");
+
+/** When the founder checked out of this office, if they have. */
+export const leftAt = (officeId: Office["id"]): string | undefined => departures()[String(officeId)];
+
+/** Checks the founder out. The landlord's door list reads the `checkouts` key, like `checkins`. */
+export function markLeft(officeId: Office["id"]): string {
+  const now = new Date().toISOString();
+  localStorage.setItem("left", JSON.stringify({ ...departures(), [String(officeId)]: now }));
+  const list = JSON.parse(localStorage.getItem("checkouts") ?? "{}");
+  localStorage.setItem("checkouts", JSON.stringify({ ...list, [`${officeId}:${getFounder()}`]: now }));
+  return now;
 }
 
 /** Opens turn-by-turn directions in the phone's maps app. */

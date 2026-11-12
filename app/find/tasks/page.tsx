@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { arrivedAt, card, getFounder, getSlot, slotText, loadAll, MOCK, muted, reward, type Office, type Task } from "../data";
+import { arrivedAt, card, getFounder, getSlot, leftAt, slotText, loadAll, MOCK, muted, reward, type Office, type Task } from "../data";
 import { Emoji, TopBar } from "../ui";
 
 type Row = Task & { office?: Office };
@@ -52,7 +52,7 @@ export default function MyTasksPage() {
                 <p className={`mt-1 truncate text-sm ${muted}`}>
                   {task.office?.name ?? "office"} · {task.room}
                 </p>
-                <p className={`truncate text-sm ${muted}`}>{slotText(getSlot(task))}</p>
+                <p className={`truncate text-sm ${muted}`}>{leftAt(task.office_id) ? "checked out" : slotText(getSlot(task))}</p>
               </div>
               <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
             </div>

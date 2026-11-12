@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { arrivedAt, card, directionsUrl, getFounder, getSlot, isDoor, loadAll, markArrived, muted, reward, setSlot, slotText, staticMap, type Office, type Slot, type Task } from "../../data";
+import { arrivedAt, card, directionsUrl, getFounder, leftAt, markLeft, stayText, getSlot, isDoor, loadAll, markArrived, muted, reward, setSlot, slotText, staticMap, type Office, type Slot, type Task } from "../../data";
 import { TopBar } from "../../ui";
 import { DoorScanner } from "./scanner";
 
 type Job = { task: Task; office: Office };
+
+const clock = (iso: string) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "");
 
 /** One claimed task, walked through in order: get there, scan the door, clean and prove it. */
 export default function JobPage() {
@@ -19,6 +21,7 @@ export default function JobPage() {
   const [wrong, setWrong] = useState("");
   const [slot, setSlotState] = useState<Slot | null>(null);
   const [editing, setEditing] = useState(false);
+  const [left, setLeft] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadAll().then(
@@ -27,6 +30,7 @@ export default function JobPage() {
         const office = task && d.offices.find((o) => o.id === task.office_id);
         setJob(task && office ? { task, office } : null);
         if (office) setArrived(!!arrivedAt(office.id));
+        if (office) setLeft(leftAt(office.id));
         if (task) setSlotState(getSlot(task));
       },
       () => setJob(null),
@@ -44,6 +48,7 @@ export default function JobPage() {
     if (!isDoor(job.office.id, text)) return setWrong("wrong door. that code belongs to somewhere else.");
     markArrived(job.office.id);
     setArrived(true);
+    setLeft(undefined);
     setScanning(false);
     setWrong("");
   }
@@ -252,6 +257,28 @@ export default function JobPage() {
             </Link>
           )}
         </section>
+
+        {/* 4. leaving */}
+        {arrived && (
+          <section className={`flex flex-col gap-3 p-4 ${card}`}>
+            <div className="flex items-center gap-3">
+              {num(4, left ? "done" : "now")}
+              <div className="min-w-0 flex-1">
+                <h2 className="display text-base">{left ? "checked out" : "check out when you leave"}</h2>
+                <p className={`text-sm ${muted}`}>
+                  {left
+                    ? `on site for ${stayText(new Date(left).getTime() - new Date(arrivedAt(office.id) ?? left).getTime())}, ${clock(arrivedAt(office.id) ?? left)} to ${clock(left)}. mind the wet floor on your way out.`
+                    : `in since ${clock(arrivedAt(office.id) ?? "")}. tell the landlord when you're gone.`}
+                </p>
+              </div>
+            </div>
+            {!left && (
+              <button onClick={() => setLeft(markLeft(office.id))} className="display h-[52px] rounded-full border border-[#0B0B0C] text-sm font-medium">
+                <span aria-hidden>👋</span> i&apos;ve left. check me out
+              </button>
+            )}
+          </section>
+        )}
       </div>
     </>
   );
