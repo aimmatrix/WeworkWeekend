@@ -1,4 +1,4 @@
-import { grokEnabled, grokVisionJSON } from "@/lib/grok";
+import { GROK_ASSESS_MODEL, grokEnabled, grokVisionJSON } from "@/lib/grok";
 import { errMsg, fail, json, readBody } from "@/lib/http";
 import { ASSESS_SCHEMA, ASSESS_SYSTEM, type AssessModelOutput } from "@/lib/prompts";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -27,7 +27,7 @@ function mockOutput(photoUrls: string[]): AssessModelOutput {
 export async function POST(req: Request) {
   const body = await readBody<AssessRequest>(req);
   const officeId = body?.officeId;
-  const photoUrls = (body?.photoUrls ?? []).filter((u) => typeof u === "string" && u.startsWith("http"));
+  const photoUrls = (body?.photoUrls ?? []).filter((u) => typeof u === "string" && u.length > 0);
   if (!officeId) return fail("officeId is required");
   if (photoUrls.length === 0) return fail("photoUrls must contain at least one URL");
   if (photoUrls.length > 8) return fail("At most 8 photos");
@@ -44,9 +44,10 @@ export async function POST(req: Request) {
         route: "assess",
         system: ASSESS_SYSTEM,
         prompt: `Inspect these ${photoUrls.length} photos of one office and list the visible cleaning jobs.`,
-        images: photoUrls.map((url, i) => ({ label: `Photo ${i}`, url })),
+        images: photoUrls.map((url, i) => ({ label: `Photo ${i}`, url: new URL(url, req.url).toString() })),
         schemaName: "office_assessment",
         schema: ASSESS_SCHEMA,
+        model: GROK_ASSESS_MODEL,
       });
       out = res.data;
     } else {

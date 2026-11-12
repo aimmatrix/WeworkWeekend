@@ -11,7 +11,8 @@ export async function POST(req: Request) {
   const taskId = body?.taskId;
   const afterUrl = body?.afterUrl;
   if (!taskId) return fail("taskId is required");
-  if (!afterUrl?.startsWith("http")) return fail("afterUrl must be a URL");
+  if (!afterUrl) return fail("afterUrl is required");
+  const abs = (u: string) => new URL(u, req.url).toString(); // seed photos are relative (/seed/...)
 
   const db = supabaseAdmin();
   const { data: task, error: taskErr } = await db.from("tasks").select("*").eq("id", taskId).maybeSingle<Task>();
@@ -31,8 +32,8 @@ export async function POST(req: Request) {
         system: VERIFY_SYSTEM,
         prompt: `Job (${task.room}, category ${task.category}): "${task.title}". Compare BEFORE and AFTER and give your verdict.`,
         images: [
-          { label: "BEFORE", url: task.before_url },
-          { label: "AFTER", url: afterUrl },
+          { label: "BEFORE", url: abs(task.before_url) },
+          { label: "AFTER", url: abs(afterUrl) },
         ],
         schemaName: "cleaning_verdict",
         schema: VERIFY_SCHEMA,
