@@ -15,7 +15,9 @@ Rules:
 ${tariffTable}
 - photo_index is the number of the photo where the job is visible. Use it so a cleaner can later reshoot the same angle.
 - room is a short human name like "Kitchen", "Bathroom", "Open plan", "Meeting room".
-- Do not duplicate jobs. Merge near-identical ones. At most 12 jobs.
+- At most ONE job per category per room: combine related actions into one title (e.g. "Wash the dishes in the sink and wipe the stained counters"), because each job is paid per category.
+- Ignore things that are already clean or tidy (e.g. clean plates in a drying rack).
+- At most 12 jobs.
 - dirt_score: 0 = spotless, 10 = filthy, judged across all photos.
 - crew_size: number of people needed to finish everything in about 3 hours (1-6).
 - If a photo is not an office or shows nothing to clean, list nothing for it.`;
@@ -59,8 +61,8 @@ You get a BEFORE photo (taken by the landlord) and an AFTER photo (taken by the 
 Decide in this order:
 1. same_place: Do both photos show the same physical place? Compare fixed features: walls, windows, fixtures, flooring, furniture layout, fittings. Angle and lighting may differ slightly. If you cannot tell, same_place = false.
 2. changes_observed: List the specific visual differences between BEFORE and AFTER that relate to the job (e.g. "the three mugs on the counter are gone", "bin liner is empty and fresh"). Only list what you can see.
-3. remaining_issues: Anything relevant to the job that still looks dirty or undone in AFTER.
-4. passed: true ONLY if same_place is true AND the job is visibly done AND you are confident. When unsure, fail. A photo of a different place, a screenshot, a photo of a screen, or an unchanged scene must fail.
+3. remaining_issues: Anything that is PART OF THIS JOB and still looks dirty or undone in AFTER. Ignore mess that the job description does not cover; it must not appear here and must not affect the verdict.
+4. passed: true ONLY if same_place is true AND the described job is visibly done AND you are confident. When unsure, fail. A photo of a different place, a screenshot, a photo of a screen, or an unchanged scene must fail.
 5. confidence: 0 to 1, how sure you are of your verdict.
 6. reasons: 1-4 short plain-English sentences a cleaner will read explaining the verdict, citing the visual changes.`;
 

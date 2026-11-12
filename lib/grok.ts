@@ -2,7 +2,10 @@ import "server-only";
 import { supabaseAdmin } from "./supabase-admin";
 
 const XAI_URL = "https://api.x.ai/v1/chat/completions";
-export const GROK_MODEL = process.env.GROK_MODEL || "grok-4";
+// Tested 2026-11-12: grok-4.7 was the only model to get all verify cases right (~7s);
+// for assess it took ~60s, so assess uses the fast non-reasoning model (~10s).
+export const GROK_MODEL = process.env.GROK_MODEL || "grok-4.7";
+export const GROK_ASSESS_MODEL = process.env.GROK_ASSESS_MODEL || "grok-4.20-0309-non-reasoning";
 export const grokEnabled = () => Boolean(process.env.XAI_API_KEY);
 
 type Part =
@@ -61,8 +64,10 @@ export async function grokVisionJSON<T>(opts: {
   images: GrokImage[];
   schemaName: string;
   schema: Record<string, unknown>;
+  model?: string;
 }): Promise<{ data: T; model: string; callId: string | null }> {
   const started = Date.now();
+  const requested = opts.model ?? GROK_MODEL;
   const logRequest = {
     system: opts.system,
     prompt: opts.prompt,
@@ -85,7 +90,7 @@ export async function grokVisionJSON<T>(opts: {
         authorization: `Bearer ${process.env.XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: GROK_MODEL,
+        model: requested,
         temperature: 0,
         messages: [
           { role: "system", content: opts.system },
@@ -103,7 +108,7 @@ export async function grokVisionJSON<T>(opts: {
     if (!res.ok) throw new Error(`xAI ${res.status}: ${JSON.stringify(body?.error ?? body)}`);
 
     const raw: string = body?.choices?.[0]?.message?.content ?? "";
-    const model: string = body?.model ?? GROK_MODEL;
+    const model: string = body?.model ?? requested;
     const data = parseJson(raw) as T;
     const callId = await logCall({
       route: opts.route,
@@ -116,7 +121,7 @@ export async function grokVisionJSON<T>(opts: {
     return { data, model, callId };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    await logCall({ route: opts.route, model: GROK_MODEL, request: logRequest, latency_ms: Date.now() - started, error: msg });
+    await logCall({ route: opts.route, model: requested, request: logRequest, latency_ms: Date.now() - started, error: msg });
     throw e;
   }
 }
