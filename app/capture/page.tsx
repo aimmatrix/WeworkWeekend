@@ -2,15 +2,22 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { assess, createOffice } from "@/lib/api";
-import { deleteTask, publishOffice } from "@/lib/data";
-import { uploadPhoto } from "@/lib/photos";
-import type { AssessResponse, Office } from "@/lib/types";
-import { card, grim, muted, reward } from "../find/data";
+import { shareDoor } from "../checkin/door";
+import { card, grim, muted, reward, type Office, type Task } from "../find/data";
+import { Emoji } from "../find/ui";
+import { assess, createOffice, publish, putPhoto, removeTask, type Assessment } from "./data";
+import { useQuip } from "./quip";
 
 const MIN = 4;
 const MAX = 6;
 const field = "h-14 rounded-full bg-white px-6 text-[17px] outline-none focus:ring-2 focus:ring-[#0B0B0C]";
+const WAITING = [
+  "grok is having a look…",
+  "grok is zooming in on the grout…",
+  "grok has found the fridge. pray for grok…",
+  "grok is counting mugs. so many mugs…",
+  "grok is pricing the horror…",
+];
 const cta = "display h-14 rounded-full bg-[#FF5A1F] text-[15px] disabled:opacity-40";
 
 export default function CapturePage() {
@@ -18,8 +25,10 @@ export default function CapturePage() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [office, setOffice] = useState<Office | null>(null);
-  const [result, setResult] = useState<AssessResponse | null>(null);
+  const [result, setResult] = useState<Assessment | null>(null);
   const [live, setLive] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const quip = useQuip(WAITING, busy === "grok");
 
   async function scan(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,10 +36,10 @@ export default function CapturePage() {
     setError("");
     try {
       setBusy("uploading the evidence…");
-      const made = await createOffice({ name: String(form.get("name")), address: String(form.get("address")) });
-      const photoUrls = await Promise.all(photos.map((p) => uploadPhoto(p.file, `offices/${made.id}`)));
-      setBusy("grok is having a look…");
-      setResult(await assess({ officeId: made.id, photoUrls }));
+      const made = await createOffice(String(form.get("name")).trim(), String(form.get("address")).trim());
+      const photoUrls = await Promise.all(photos.map((p) => putPhoto(p.file, `offices/${made.id}`)));
+      setBusy("grok");
+      setResult(await assess(made, photoUrls));
       setOffice(made);
     } catch (err) {
       setError(err instanceof Error ? err.message : "that didn't work. try again.");
@@ -38,8 +47,8 @@ export default function CapturePage() {
     setBusy("");
   }
 
-  async function remove(id: string) {
-    await deleteTask(id).catch(() => {});
+  async function remove(id: Task["id"]) {
+    await removeTask(id).catch(() => {});
     setResult((r) => r && { ...r, tasks: r.tasks.filter((x) => x.id !== id) });
   }
 
@@ -48,7 +57,7 @@ export default function CapturePage() {
     setBusy("publishing…");
     setError("");
     try {
-      await publishOffice(office.id);
+      await publish(office, result);
       setLive(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "couldn't publish. try again.");
@@ -62,7 +71,14 @@ export default function CapturePage() {
         <span aria-hidden className="text-[64px] leading-none">🧽</span>
         <h1 className="display text-[32px] leading-[1.1]">{office.name} is live.</h1>
         <p className={muted}>founders can see it on the map now. expect people with bin bags on saturday.</p>
-        <Link href={`/find/${office.id}`} className="display mt-4 flex h-14 items-center justify-center rounded-full bg-[#0B0B0C] text-[15px] text-white">
+        <p className={`mt-2 ${muted}`}>not planning to stand at the door yourself? hand the guest list to whoever drew the short straw.</p>
+        <button onClick={async () => setCopied(await shareDoor(office.id, office.name))} className={cta}>
+          {copied ? "link copied. go and delegate" : "send the door list to your supervisor"}
+        </button>
+        <Link href={`/checkin?office=${office.id}`} className="display flex h-14 items-center justify-center rounded-full bg-[#0B0B0C] text-[15px] text-white">
+          do the door myself
+        </Link>
+        <Link href={`/find/${office.id}`} className="flex h-11 items-center justify-center font-bold underline">
           see what founders see
         </Link>
       </div>
@@ -100,8 +116,12 @@ export default function CapturePage() {
               .filter((x) => x.room === room)
               .map((task) => (
                 <div key={task.id} className={`flex min-h-[72px] items-center gap-3 py-2 pl-3.5 pr-3 ${card}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={task.before_url} alt="" className="h-11 w-11 shrink-0 rounded-[14px] object-cover" />
+                  {task.before_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={task.before_url} alt="" className="h-11 w-11 shrink-0 rounded-[14px] object-cover" />
+                  ) : (
+                    <Emoji task={task} />
+                  )}
                   <p className="min-w-0 flex-1 font-bold">{task.title}</p>
                   <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
                   <button
@@ -115,7 +135,7 @@ export default function CapturePage() {
               ))}
           </section>
         ))}
-        {result.tasks.length === 0 && <p className={`p-4 ${card}`}>no tasks left. nothing for founders to clean.</p>}
+        {result.tasks.length === 0 && <p className={`p-4 ${card}`}>no tasks left. either it&apos;s spotless or you&apos;re in denial.</p>}
 
         <div className="mt-auto flex flex-col gap-2 pt-2">
           {error && <p role="alert" className="px-1 font-bold text-[#B3261E]">{error}</p>}
@@ -186,7 +206,7 @@ export default function CapturePage() {
       <div className="mt-auto flex flex-col gap-2 pt-2">
         {error && <p role="alert" className="px-1 font-bold text-[#B3261E]">{error}</p>}
         <button disabled={!!busy || photos.length < MIN} className={cta}>
-          {busy || (photos.length < MIN ? `${MIN - photos.length} more to go` : "scan the mess")}
+          {busy === "grok" ? quip : busy || (photos.length < MIN ? `${MIN - photos.length} more to go. be brave` : "scan the mess")}
         </button>
       </div>
     </form>

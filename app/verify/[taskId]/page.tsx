@@ -3,12 +3,18 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { verify } from "@/lib/api";
-import { getOffice, getTask } from "@/lib/data";
-import { uploadPhoto } from "@/lib/photos";
-import type { Task, VerifyResponse } from "@/lib/types";
-import { card, muted, reward } from "../../find/data";
-import { TopBar } from "../../find/ui";
+import type { VerifyResponse } from "@/lib/types";
+import { getTask, putPhoto, spotless as isSpotless, verify } from "../../capture/data";
+import { useQuip } from "../../capture/quip";
+import { card, muted, reward, type Task } from "../../find/data";
+import { Emoji, TopBar } from "../../find/ui";
+
+const WAITING = [
+  "grok is squinting at it…",
+  "grok is playing spot the difference…",
+  "grok is checking behind the bin…",
+  "grok is sniffing the photo. somehow…",
+];
 
 const photo = "aspect-[4/3] w-full rounded-[22px] object-cover";
 const tag = "absolute left-3 top-3 rounded-full bg-[#0B0B0C] px-3 py-1 text-[13px] font-bold text-white";
@@ -16,8 +22,14 @@ const tag = "absolute left-3 top-3 rounded-full bg-[#0B0B0C] px-3 py-1 text-[13p
 function Before({ task }: { task: Task }) {
   return (
     <div className="relative">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={task.before_url} alt="Before cleaning" className={`${photo} bg-[#DCE5EF]`} />
+      {task.before_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={task.before_url} alt="Before cleaning" className={`${photo} bg-[#DCE5EF]`} />
+      ) : (
+        <div className={`${photo} grid place-items-center bg-[#DCE5EF]`}>
+          <Emoji task={task} className="!bg-white" />
+        </div>
+      )}
       <span className={tag}>before</span>
     </div>
   );
@@ -31,6 +43,7 @@ export default function VerifyPage() {
   const [error, setError] = useState("");
   const [verdict, setVerdict] = useState<VerifyResponse | null>(null);
   const [spotless, setSpotless] = useState(false);
+  const quip = useQuip(WAITING, busy);
   const after = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
 
   useEffect(() => {
@@ -42,11 +55,10 @@ export default function VerifyPage() {
     setBusy(true);
     setError("");
     try {
-      const v = await verify({ taskId: task.id, afterUrl: await uploadPhoto(file, `tasks/${task.id}`) });
+      const v = await verify(task, await putPhoto(file, `tasks/${task.id}`));
       if (v.passed) {
         // Bonus: every task at this office has now passed.
-        const office = await getOffice(task.office_id).catch(() => null);
-        setSpotless(!!office && office.tasks.every((x) => x.status === "done"));
+        setSpotless(await isSpotless(task).catch(() => false));
         window.dispatchEvent(new Event("wallet"));
       }
       setVerdict(v);
@@ -185,7 +197,7 @@ export default function VerifyPage() {
         </label>
         {file && (
           <button onClick={send} disabled={busy} className="display h-14 rounded-full bg-[#FF5A1F] text-[15px] disabled:opacity-40">
-            {busy ? "grok is squinting at it…" : "send to grok"}
+            {busy ? quip : "send to grok"}
           </button>
         )}
       </div>

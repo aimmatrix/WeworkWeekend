@@ -1,10 +1,12 @@
 "use client";
 
 import { DM_Sans, Unbounded } from "next/font/google";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { loadAll, muted, type Office, type Task } from "../../find/data";
 import "../../find/find.css";
+import { doorKey, setCheckin } from "../door";
 
 const display = Unbounded({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-display" });
 const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
@@ -19,6 +21,8 @@ export default function CheckIn() {
     loadAll().then(
       (d) => {
         const task = d.tasks.find((x) => String(x.id) === taskId);
+        // A good scan ticks the guest off on this device's door list.
+        if (task?.status === "claimed" && task.claimed_by) setCheckin(doorKey(task.office_id, task.claimed_by), true);
         setFound(task ? { task, office: d.offices.find((o) => o.id === task.office_id) } : null);
       },
       () => setFound(null),
@@ -73,6 +77,12 @@ export default function CheckIn() {
             </div>
           </dl>
         </>
+      )}
+
+      {task && (
+        <Link href={`/checkin?office=${task.office_id}`} className="display flex h-14 items-center justify-center rounded-full bg-[#0B0B0C] text-[15px] text-white">
+          back to the door list
+        </Link>
       )}
     </main>
   );
