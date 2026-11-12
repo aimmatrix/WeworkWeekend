@@ -8,6 +8,7 @@ const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 const links = [
   ["/find", "find", "find a desk", "founders: pick an office, clean it, work there"],
   ["/capture", "scan", "scan an office", "landlords: photograph the mess, grok prices it"],
+  ["/landlord", "office-0", "your offices", "landlords: who's coming, who's in, ask grok"],
   ["/checkin", "door", "door list", "on-site lead: let the cleaners in"],
   ["/ledger", "credits", "my credits", "every hour traced back to its photos"],
   ["/supervisor", "supervisor", "supervisor queue", "approve or overturn grok"],

@@ -81,8 +81,8 @@ export default function CapturePage() {
         <Link href={`/checkin?office=${office.id}`} className="display flex h-14 items-center justify-center rounded-full bg-[#0B0B0C] text-[15px] text-white">
           do the door myself
         </Link>
-        <Link href={`/find/${office.id}`} className="flex h-11 items-center justify-center font-bold underline">
-          see what founders see
+        <Link href={`/landlord/${office.id}`} className="flex h-11 items-center justify-center font-bold underline">
+          run this office
         </Link>
       </div>
     );
