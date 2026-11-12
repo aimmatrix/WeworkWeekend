@@ -1,6 +1,8 @@
 import { DM_Sans, Unbounded } from "next/font/google";
 import Link from "next/link";
 import "./find/find.css";
+import { Blob } from "./grok/blob";
+import "./grok/grok.css";
 
 const display = Unbounded({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-display" });
 const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
@@ -8,6 +10,7 @@ const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 const links = [
   ["/find", "find", "find a desk", "founders: pick an office, clean it, work there"],
   ["/capture", "scan", "scan an office", "landlords: photograph the mess, grok prices it"],
+  ["/grok", "grok", "grok bot", "landlords: your chief of staff, live from every building"],
   ["/landlord", "office-0", "your offices", "landlords: who's coming, who's in, ask grok"],
   ["/checkin", "door", "door list", "on-site lead: let the cleaners in"],
   ["/ledger", "credits", "my credits", "every hour traced back to its photos"],
@@ -33,12 +36,18 @@ export default function Home() {
 
       {links.map(([href, sticker, title, sub], i) => (
         <Link key={href} href={href} className="flex items-center gap-4 rounded-[28px] bg-white/90 p-3 pr-5 shadow-[0_8px_24px_rgba(15,30,60,0.18)] backdrop-blur-md">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/stickers/${sticker}.png`}
-            alt=""
-            className={`h-[72px] w-[72px] shrink-0 object-contain drop-shadow-[0_4px_6px_rgba(15,30,60,0.3)] ${i % 2 ? "rotate-6" : "-rotate-6"}`}
-          />
+          {sticker === "grok" ? (
+            <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-[#141414]">
+              <Blob shape="circle" color="#FFFFFF" badge="star" size={50} />
+            </span>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/stickers/${sticker}.png`}
+              alt=""
+              className={`h-[72px] w-[72px] shrink-0 object-contain drop-shadow-[0_4px_6px_rgba(15,30,60,0.3)] ${i % 2 ? "rotate-6" : "-rotate-6"}`}
+            />
+          )}
           <span className="min-w-0 flex-1">
             <span className="display block text-lg leading-tight">{title}</span>
             <span className="mt-0.5 block text-sm text-[#4E5967]">{sub}</span>

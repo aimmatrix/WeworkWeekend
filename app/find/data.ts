@@ -23,6 +23,7 @@ export type Task = {
   before_url: string | null;
   status: "open" | "claimed" | "done";
   claimed_by: string | null;
+  claimed_at?: string | null;
 };
 
 export type Booking = { office: string; hours: number; at: string; id?: string };
@@ -107,6 +108,7 @@ export async function claimTask(id: Task["id"], founder: string): Promise<boolea
     if (!task || task.status !== "open") return false;
     task.status = "claimed";
     task.claimed_by = founder;
+    task.claimed_at = new Date().toISOString();
     localStorage.setItem("mock_tasks", JSON.stringify(tasks));
     return true;
   }
@@ -190,6 +192,15 @@ export function markArrived(officeId: Office["id"]): void {
   const key = `${officeId}:${getFounder()}`;
   const list = JSON.parse(localStorage.getItem("checkins") ?? "{}");
   if (!list[key]) localStorage.setItem("checkins", JSON.stringify({ ...list, [key]: now }));
+  logVisit(officeId, getFounder(), "arrived");
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Tells the landlord's Grok Bot feed (any device) that someone came in or left. Best effort: never blocks the founder. */
+export function logVisit(officeId: Office["id"], founder: string, kind: "arrived" | "left"): void {
+  if (MOCK || !founder || !UUID.test(String(officeId))) return;
+  sb("visits", { method: "POST", body: JSON.stringify({ office_id: officeId, founder, kind }) }).catch(() => {});
 }
 
 const departures = (): Record<string, string> =>
@@ -204,6 +215,7 @@ export function markLeft(officeId: Office["id"]): string {
   localStorage.setItem("left", JSON.stringify({ ...departures(), [String(officeId)]: now }));
   const list = JSON.parse(localStorage.getItem("checkouts") ?? "{}");
   localStorage.setItem("checkouts", JSON.stringify({ ...list, [`${officeId}:${getFounder()}`]: now }));
+  logVisit(officeId, getFounder(), "left");
   return now;
 }
 

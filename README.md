@@ -43,6 +43,13 @@ No `XAI_API_KEY` → `/api/assess` and `/api/verify` run in **mock mode** (contr
 
 **Founder flow:** `listLiveOffices` → `claimTask` → `/verify/[taskId]` → `uploadPhoto` → `verify` → `/ledger/[creditId]`.
 
+## Grok Bot (`/grok`)
+
+The landlord's chief of staff, in a dark chat UI. Inbox at `/grok` (Grok Bot pinned, one thread per building), thread at `/grok/all` or `/grok/<officeId>`.
+It posts when a founder accepts a job, is let in at the door, uploads an after photo (with a before/after slider) and checks out, and answers questions via `/api/bot` (Grok).
+Door scans and check-outs need the `visits` table (`supabase/migrations/20261112230000_visits.sql`); without it the feed only sees scans made on the same device.
+Pitch mode: open `/grok/all?demo=1` (or ⋯ → Replay a weekend) to play a labelled demo weekend.
+
 ## Next.js 16 gotcha
 
 `cacheComponents` is on. A dynamic route page (e.g. `/verify/[taskId]`) must not read `params` outside `<Suspense>`.
