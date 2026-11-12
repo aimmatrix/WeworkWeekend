@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
+    "mapbox-gl": "^3.34.2",
     "next": "16.4.6",
+    "qrcode.react": "^4.2.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1"
