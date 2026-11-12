@@ -58,20 +58,27 @@ export async function POST(req: Request) {
   }
 
   // Price from OUR tariff, never the model's. Drop anything malformed.
-  const rows = (out.tasks ?? [])
-    .filter((t) => (CATEGORIES as string[]).includes(t.category) && t.title?.trim())
-    .slice(0, 12)
-    .map((t) => {
-      const idx = clamp(t.photo_index, 0, photoUrls.length - 1);
-      return {
-        office_id: officeId,
-        room: t.room?.trim() || "Office",
-        title: t.title.trim(),
-        category: t.category as Category,
-        credit_hours: TARIFF[t.category as Category],
-        before_url: photoUrls[idx],
-      };
+  // One job per room+category (each is paid per category): merge duplicates into one title.
+  const merged = new Map<string, { office_id: string; room: string; title: string; category: Category; credit_hours: number; before_url: string }>();
+  for (const t of out.tasks ?? []) {
+    if (!(CATEGORIES as string[]).includes(t.category) || !t.title?.trim()) continue;
+    const room = t.room?.trim() || "Office";
+    const key = `${room.toLowerCase()}|${t.category}`;
+    const prev = merged.get(key);
+    if (prev) {
+      prev.title = `${prev.title}; ${t.title.trim().replace(/^./, (c) => c.toLowerCase())}`;
+      continue;
+    }
+    merged.set(key, {
+      office_id: officeId,
+      room,
+      title: t.title.trim(),
+      category: t.category as Category,
+      credit_hours: TARIFF[t.category as Category],
+      before_url: photoUrls[clamp(t.photo_index, 0, photoUrls.length - 1)],
     });
+  }
+  const rows = [...merged.values()].slice(0, 12);
 
   const dirt_score = clamp(out.dirt_score, 0, 10);
   const crew_size = clamp(out.crew_size, 1, 6);
