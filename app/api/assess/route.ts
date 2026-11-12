@@ -1,3 +1,4 @@
+import { agentVisionEnabled, agentVisionJSON } from "@/lib/agent-vision";
 import { GROK_ASSESS_MODEL, grokEnabled, grokVisionJSON } from "@/lib/grok";
 import { errMsg, fail, json, readBody } from "@/lib/http";
 import { ASSESS_SCHEMA, ASSESS_SYSTEM, type AssessModelOutput } from "@/lib/prompts";
@@ -48,6 +49,14 @@ export async function POST(req: Request) {
         schemaName: "office_assessment",
         schema: ASSESS_SCHEMA,
         model: GROK_ASSESS_MODEL,
+      });
+      out = res.data;
+    } else if (agentVisionEnabled()) {
+      const res = await agentVisionJSON<AssessModelOutput>({
+        system: ASSESS_SYSTEM,
+        prompt: `Inspect these ${photoUrls.length} photos of one office and list the visible cleaning jobs. JSON shape: ${JSON.stringify(ASSESS_SCHEMA.properties)}`,
+        images: photoUrls,
+        origin: req.url,
       });
       out = res.data;
     } else {

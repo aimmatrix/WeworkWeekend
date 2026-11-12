@@ -97,7 +97,11 @@ export default function CapturePage() {
           <p className={`text-sm ${muted}`}>grok&apos;s verdict on</p>
           <h1 className="display text-[26px] leading-tight">{office.name}</h1>
         </div>
-        {MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>}
+        {result.model ? (
+          <p className="self-start rounded-full bg-[#DDF3E6] px-3 py-1 text-[13px] font-bold text-[#0A6B3B]">grok looked at every photo</p>
+        ) : (
+          MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>
+        )}
         <dl className="grid grid-cols-3 gap-2">
           <div className={stat}>
             <dd className="display text-xl tabular-nums">{hours}h</dd>

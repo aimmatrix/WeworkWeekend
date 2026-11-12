@@ -192,9 +192,45 @@ export function markArrived(officeId: Office["id"]): void {
 export const directionsUrl = (office: Office) =>
   `https://www.google.com/maps/dir/?api=1&destination=${office.lat},${office.lng}&travelmode=transit`;
 
+/** "1h 12m" or "3 min", for time spent on site. */
+export function stayText(ms: number): string {
+  const mins = Math.max(0, Math.round(ms / 60000));
+  return mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+// ---- when the founder is coming ----------------------------------------------
+// Kept on the founder's device, like the arrival. A column on tasks would let the landlord see it.
+
+export type Slot = { day: "saturday" | "sunday"; from: string; hours: number };
+
+const slots = (): Record<string, Slot> => (typeof localStorage === "undefined" ? {} : JSON.parse(localStorage.getItem("slots") ?? "{}"));
+
+/** The founder's chosen time for a task, or a sensible default sized to the job. */
+export const getSlot = (task: Task): Slot => slots()[String(task.id)] ?? { day: "saturday", from: "10:00", hours: Math.max(1, Number(task.credit_hours)) };
+
+export const setSlot = (taskId: Task["id"], slot: Slot) => localStorage.setItem("slots", JSON.stringify({ ...slots(), [String(taskId)]: slot }));
+
+export const slotText = (slot: Slot) => `${slot.day} · ${slot.from} · ${slot.hours}h`;
+
 // ---- shared look and copy ---------------------------------------------------
 
 export const ICON: Record<string, string> = { toilet: "💩", kitchen: "🍳", bins: "🗑️", floor: "🧹", desks: "🖥️", furniture: "🪑" };
+/** Photo-sticker art per category (generated once, kept in /public/stickers). */
+export const STICKER: Record<string, string> = {
+  toilet: "/stickers/toilet.png",
+  kitchen: "/stickers/kitchen.png",
+  bins: "/stickers/bins.png",
+  floor: "/stickers/floor.png",
+  desks: "/stickers/desks.png",
+  furniture: "/stickers/furniture_reset.png",
+};
+/** Each office gets one of six coworking stickers, picked from its id so it never changes. */
+export function officeSticker(officeId: Office["id"]): string {
+  let h = 0;
+  for (const c of String(officeId)) h = (h * 31 + c.charCodeAt(0)) % 997;
+  return `/stickers/office-${h % 6}.png`;
+}
+
 export const TARIFF: Record<string, number> = { toilet: 3, kitchen: 2, bins: 1, floor: 1, desks: 0.5, furniture: 0.5 };
 
 export const muted = "text-[#4E5967]";

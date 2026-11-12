@@ -15,9 +15,9 @@ const subscribe = (cb: () => void) => {
 };
 
 const STEPS = [
-  ["🗺️", "find a grim office near you"],
-  ["💩", "claim a job. toilets pay best, sorry"],
-  ["📸", "snap the after photo, get paid in desk hours"],
+  ["/stickers/find.png", "find a grim office near you"],
+  ["/stickers/toilet.png", "claim a job. toilets pay best, sorry"],
+  ["/stickers/scan.png", "snap the after photo, get paid in desk hours"],
 ];
 
 export default function FindLayout({ children }: { children: React.ReactNode }) {
@@ -44,9 +44,8 @@ export default function FindLayout({ children }: { children: React.ReactNode }) 
           <ul className="flex flex-col gap-2.5">
             {STEPS.map(([icon, text]) => (
               <li key={text} className="flex items-center gap-3">
-                <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-[22px] leading-none">
-                  {icon}
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={icon} alt="" className="h-12 w-12 shrink-0 -rotate-6 object-contain drop-shadow-[0_3px_5px_rgba(15,30,60,0.25)]" />
                 {text}
               </li>
             ))}

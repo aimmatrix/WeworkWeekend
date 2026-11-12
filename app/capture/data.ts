@@ -8,7 +8,8 @@ import { uploadPhoto } from "@/lib/photos";
 import type { VerifyResponse } from "@/lib/types";
 import { MOCK, loadAll, mockTasks, type Office, type Task } from "../find/data";
 
-export type Assessment = { dirt_score: number; crew_size: number; tasks: Task[] };
+/** `model` is set when a real vision model priced the jobs, and missing for the offline stand-in. */
+export type Assessment = { dirt_score: number; crew_size: number; tasks: Task[]; model?: string };
 
 const stored = (key: string) => JSON.parse(localStorage.getItem(key) ?? "[]");
 
@@ -42,6 +43,17 @@ const JOBS: [category: string, room: string, title: string, hours: number][] = [
 
 export async function assess(office: Office, photoUrls: string[]): Promise<Assessment> {
   if (!MOCK) return api.assess({ officeId: String(office.id), photoUrls });
+  // No database, but the server may still have a vision model: ask it to look at the photos.
+  const scan = await fetch("/api/scan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ photos: photoUrls }) }).catch(() => null);
+  if (scan?.ok) {
+    const out: { dirt_score: number; crew_size: number; model: string; tasks: { room: string; title: string; category: string; credit_hours: number; photo_index: number }[] } = await scan.json();
+    return {
+      dirt_score: out.dirt_score,
+      crew_size: out.crew_size,
+      model: out.model,
+      tasks: out.tasks.map((t, i): Task => ({ id: `${office.id}-t${i}`, office_id: office.id, room: t.room, title: t.title, category: t.category, credit_hours: t.credit_hours, before_url: photoUrls[t.photo_index], status: "open", claimed_by: null })),
+    };
+  }
   const tasks = photoUrls.map((before_url, i): Task => {
     const [category, room, title, credit_hours] = JOBS[i % JOBS.length];
     return { id: `${office.id}-t${i}`, office_id: office.id, room, title, category, credit_hours, before_url, status: "open", claimed_by: null };
@@ -65,8 +77,29 @@ export async function getTask(id: string): Promise<Task | null> {
   return (await loadAll()).tasks.find((x) => String(x.id) === id) ?? null;
 }
 
-export async function verify(task: Task, afterUrl: string): Promise<VerifyResponse> {
+/** `model` is set when a real vision model compared the photos, and missing for the offline stand-in. */
+export type Verdict = VerifyResponse & { model?: string };
+
+const payOut = (task: Task) => {
+  localStorage.setItem("mock_tasks", JSON.stringify(mockTasks().map((x) => (x.id === task.id ? { ...x, status: "done" } : x))));
+  localStorage.setItem("mock_credits", JSON.stringify([...stored("mock_credits"), { hours: task.credit_hours, supervisor_approved: null }]));
+};
+
+export async function verify(task: Task, afterUrl: string): Promise<Verdict> {
   if (!MOCK) return api.verify({ taskId: String(task.id), afterUrl });
+  // No database, but the server may still have a vision model: have it compare the two photos.
+  if (task.before_url) {
+    const check = await fetch("/api/check", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ before: task.before_url, after: afterUrl, title: task.title, room: task.room, category: task.category }),
+    }).catch(() => null);
+    if (check?.ok) {
+      const v: Verdict = await check.json();
+      if (v.passed) payOut(task);
+      return v.passed ? { ...v, hours: task.credit_hours } : v;
+    }
+  }
   // Offline verdict: a pass, or a fail when the page is opened with ?fail, so both screens can be shown.
   if (new URLSearchParams(location.search).has("fail"))
     return {
@@ -75,8 +108,7 @@ export async function verify(task: Task, afterUrl: string): Promise<VerifyRespon
       reasons: ["Both photos show the same spot from the same angle.", "Most of the mess is gone."],
       remaining_issues: ["There is still rubbish on the left of the frame.", "The surface has not been wiped."],
     };
-  localStorage.setItem("mock_tasks", JSON.stringify(mockTasks().map((x) => (x.id === task.id ? { ...x, status: "done" } : x))));
-  localStorage.setItem("mock_credits", JSON.stringify([...stored("mock_credits"), { hours: task.credit_hours, supervisor_approved: null }]));
+  payOut(task);
   return {
     passed: true,
     confidence: 0.93,

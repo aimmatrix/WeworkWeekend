@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { arrivedAt, card, directionsUrl, getFounder, isDoor, loadAll, markArrived, muted, reward, staticMap, type Office, type Task } from "../../data";
+import { arrivedAt, card, directionsUrl, getFounder, getSlot, isDoor, loadAll, markArrived, muted, reward, setSlot, slotText, staticMap, type Office, type Slot, type Task } from "../../data";
 import { TopBar } from "../../ui";
 import { DoorScanner } from "./scanner";
 
@@ -17,6 +17,8 @@ export default function JobPage() {
   const [scanning, setScanning] = useState(false);
   const [typed, setTyped] = useState("");
   const [wrong, setWrong] = useState("");
+  const [slot, setSlotState] = useState<Slot | null>(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     loadAll().then(
@@ -25,10 +27,17 @@ export default function JobPage() {
         const office = task && d.offices.find((o) => o.id === task.office_id);
         setJob(task && office ? { task, office } : null);
         if (office) setArrived(!!arrivedAt(office.id));
+        if (task) setSlotState(getSlot(task));
       },
       () => setJob(null),
     );
   }, [taskId]);
+
+  function changeSlot(next: Slot) {
+    if (!job) return;
+    setSlot(job.task.id, next);
+    setSlotState(next);
+  }
 
   function tryDoor(text: string) {
     if (!job) return;
@@ -56,6 +65,7 @@ export default function JobPage() {
   const { task, office } = job;
   const done = task.status === "done";
   const map = staticMap(office.lng, office.lat, 14.3, 448, 220);
+  const stepBtn = "grid h-11 w-11 place-items-center rounded-full border border-[#C9D3DF] bg-white text-[22px] leading-none disabled:opacity-40";
   const num = (n: number, state: "done" | "now" | "later") => (
     <span
       className={`display grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm ${
@@ -83,6 +93,67 @@ export default function JobPage() {
             <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
           </div>
         </div>
+
+        {/* when the founder is coming, editable until the job is done */}
+        {slot && (
+          <section className={`flex flex-col gap-3 p-4 ${card}`}>
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/stickers/credits.png" alt="" className="h-11 w-11 shrink-0 -rotate-6 object-contain drop-shadow-[0_3px_5px_rgba(15,30,60,0.25)]" />
+              <div className="min-w-0 flex-1">
+                <h2 className="display text-base">when you&apos;re coming</h2>
+                <p className={`text-sm ${muted}`}>{slotText(slot)}</p>
+              </div>
+              {!done && (
+                <button onClick={() => setEditing(!editing)} aria-expanded={editing} className="display h-11 rounded-full border border-[#C9D3DF] px-4 text-[13px] font-medium">
+                  {editing ? "done" : "edit"}
+                </button>
+              )}
+            </div>
+            {editing && !done && (
+              <div className="flex flex-col gap-3">
+                <fieldset className="flex gap-2">
+                  <legend className="sr-only">Day</legend>
+                  {(["saturday", "sunday"] as const).map((day) => (
+                    <label key={day} className="flex-1">
+                      <input type="radio" name="day" checked={slot.day === day} onChange={() => changeSlot({ ...slot, day })} className="peer sr-only" />
+                      <span className="flex h-11 items-center justify-center rounded-full border border-[#C9D3DF] font-medium peer-checked:border-[#0B0B0C] peer-checked:bg-[#0B0B0C] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#FF5A1F]">
+                        {day}
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="from" className={muted}>
+                    arriving at
+                  </label>
+                  <input
+                    id="from"
+                    type="time"
+                    step={900}
+                    value={slot.from}
+                    onChange={(e) => e.target.value && changeSlot({ ...slot, from: e.target.value })}
+                    className="display h-11 rounded-full border border-[#C9D3DF] bg-white px-4"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className={muted}>staying for</span>
+                  <div className="flex items-center gap-3">
+                    <button aria-label="Stay for less time" disabled={slot.hours <= 0.5} onClick={() => changeSlot({ ...slot, hours: slot.hours - 0.5 })} className={stepBtn}>
+                      −
+                    </button>
+                    <span className="display min-w-14 text-center text-lg tabular-nums" aria-live="polite">
+                      {slot.hours}h
+                    </span>
+                    <button aria-label="Stay for longer" disabled={slot.hours >= 8} onClick={() => changeSlot({ ...slot, hours: slot.hours + 0.5 })} className={stepBtn}>
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* 1. directions */}
         <section className={`flex flex-col gap-3 p-4 ${card} ${arrived ? "opacity-60" : ""}`}>

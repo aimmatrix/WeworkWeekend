@@ -1,3 +1,4 @@
+import { agentVisionEnabled, agentVisionJSON } from "@/lib/agent-vision";
 import { grokEnabled, grokVisionJSON } from "@/lib/grok";
 import { errMsg, fail, json, readBody } from "@/lib/http";
 import { PASS_CONFIDENCE, VERIFY_SCHEMA, VERIFY_SYSTEM, type VerifyModelOutput } from "@/lib/prompts";
@@ -41,6 +42,15 @@ export async function POST(req: Request) {
       out = res.data;
       model = res.model;
       callId = res.callId;
+    } else if (agentVisionEnabled()) {
+      const res = await agentVisionJSON<VerifyModelOutput>({
+        system: VERIFY_SYSTEM,
+        prompt: `Job (${task.room}, category ${task.category}): "${task.title}". photo0.jpg is BEFORE and photo1.jpg is AFTER. Compare them and give your verdict. JSON shape: ${JSON.stringify(VERIFY_SCHEMA.properties)}`,
+        images: [task.before_url, afterUrl],
+        origin: req.url,
+      });
+      out = res.data;
+      model = res.model;
     } else {
       out = {
         same_place: true,

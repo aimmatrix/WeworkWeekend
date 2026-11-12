@@ -5,7 +5,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { card, catOf, grim, ICON, loadAll, MAP_STYLE, MAPBOX_TOKEN, MOCK, muted, openHours, TARIFF, WATER, type Office, type Task } from "./data";
+import { card, catOf, grim, ICON, loadAll, MAP_STYLE, MAPBOX_TOKEN, MOCK, muted, officeSticker, openHours, STICKER, TARIFF, WATER, type Office, type Task } from "./data";
 import { TopBar } from "./ui";
 
 export default function MapPage() {
@@ -54,26 +54,30 @@ export default function MapPage() {
         const hours = openHours(data.tasks, office.id);
         // Built as DOM nodes, not an HTML string: office names are landlord input.
         const pin = document.createElement("button");
-        pin.className = "flex flex-col items-center gap-1 p-1.5 transition-opacity";
+        pin.className = "flex flex-col items-center gap-1 p-1.5 transition-opacity hover:scale-105";
         pin.setAttribute("aria-label", `${office.name}: ${hours} credit hours up for grabs`);
         const badge = document.createElement("span");
-        badge.className = `display flex items-center rounded-full shadow-[0_4px_14px_rgba(15,30,60,0.2)] ${
+        badge.className = `display relative flex items-center rounded-full shadow-[0_4px_14px_rgba(15,30,60,0.2)] ${
           hours > 0 && hours === best ? "h-9 bg-[#0B0B0C] px-3.5 text-[15px] text-white" : "h-8 bg-white px-3 text-[13px] text-[#0B0B0C]"
         }`;
         badge.textContent = `${hours}h`;
+        const art = document.createElement("img");
+        art.src = officeSticker(office.id);
+        art.alt = "";
+        art.className = "-mb-3 h-14 w-14 object-contain drop-shadow-[0_4px_6px_rgba(15,30,60,0.3)]";
         const name = document.createElement("span");
         name.className = "whitespace-nowrap text-xs font-bold lowercase text-[#0B0B0C] [text-shadow:0_0_3px_#fff,0_0_3px_#fff,0_0_6px_#fff]";
         name.textContent = office.name;
-        pin.append(badge, name);
+        pin.append(art, badge, name);
         pin.onclick = () => router.push(`/find/${office.id}`);
         // Mapbox positions the wrapper itself, so the pin sits inside one.
         const wrap = document.createElement("div");
         wrap.append(pin);
-        new mapboxgl.Marker({ element: wrap }).setLngLat([office.lng, office.lat]).addTo(m);
+        new mapboxgl.Marker({ element: wrap, anchor: "bottom" }).setLngLat([office.lng, office.lat]).addTo(m);
         made.set(office.id, pin);
         bounds.extend([office.lng, office.lat]);
       }
-      if (data.offices.length) m.fitBounds(bounds, { padding: { top: 110, bottom: 100, left: 70, right: 70 }, maxZoom: 14, duration: 0 });
+      if (data.offices.length) m.fitBounds(bounds, { padding: { top: 170, bottom: 90, left: 70, right: 70 }, maxZoom: 14, duration: 0 });
     })().catch((e) => setError(String(e.message ?? e)));
     return () => {
       dead = true;
@@ -149,9 +153,8 @@ export default function MapPage() {
               aria-pressed={cat === key}
               className={`${chip} ${cat === key ? "bg-[#0B0B0C] text-white" : "border border-[#C9D3DF] bg-white"}`}
             >
-              <span aria-hidden className="text-[17px] leading-none">
-                {icon}
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {STICKER[key] ? <img src={STICKER[key]} alt="" className="h-7 w-7 object-contain" /> : <span aria-hidden>{icon}</span>}
               {key} <b>{TARIFF[key]}h</b>
             </button>
           ))}
@@ -182,7 +185,6 @@ export default function MapPage() {
 function OfficeCard({ office, tasks }: { office: Office; tasks: Task[] }) {
   const hours = tasks.reduce((s, x) => s + Number(x.credit_hours), 0);
   const best = [...tasks].sort((a, b) => b.credit_hours - a.credit_hours)[0];
-  const photo = office.photo_urls?.[0] ?? tasks.find((x) => x.before_url)?.before_url;
   const mess = Math.max(0, Math.min(10, Math.round(office.dirt_score)));
 
   return (
@@ -193,7 +195,7 @@ function OfficeCard({ office, tasks }: { office: Office; tasks: Task[] }) {
           <p className={`mt-1 truncate text-sm ${muted}`}>{office.address}</p>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {photo && <img src={photo} alt="" className="h-14 w-14 shrink-0 rounded-2xl object-cover" />}
+        <img src={officeSticker(office.id)} alt="" className="h-14 w-14 shrink-0 rotate-6 object-contain drop-shadow-[0_3px_5px_rgba(15,30,60,0.25)]" />
       </div>
 
       <div className="flex items-center gap-3">
@@ -219,7 +221,8 @@ function OfficeCard({ office, tasks }: { office: Office; tasks: Task[] }) {
         {tasks.length ? `see ${tasks.length} ${tasks.length === 1 ? "task" : "tasks"}` : "all taken"}
         {best && (
           <span className="flex h-8 items-center gap-1 rounded-full bg-[#FF5A1F] px-3 text-[13px] font-bold text-[#0B0B0C]">
-            {ICON[catOf(best)] ?? "✨"} +{best.credit_hours}h
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {STICKER[catOf(best)] ? <img src={STICKER[catOf(best)]} alt="" className="h-6 w-6 object-contain" /> : (ICON[catOf(best)] ?? "✨")} +{best.credit_hours}h
           </span>
         )}
       </span>

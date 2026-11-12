@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { card, catOf, claimTask, getBalance, getFounder, ICON, loadAll, muted, reward, type Task } from "./data";
+import { card, catOf, claimTask, getBalance, getFounder, ICON, loadAll, muted, reward, STICKER, type Task } from "./data";
 
+/** The sticker for a task's category. Named Emoji because that is what it used to draw. */
 export function Emoji({ task, className = "" }: { task: Task; className?: string }) {
-  return (
+  const src = STICKER[catOf(task)];
+  return src ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt="" className={`h-12 w-12 shrink-0 -rotate-6 object-contain drop-shadow-[0_3px_5px_rgba(15,30,60,0.25)] ${className}`} />
+  ) : (
     <span aria-hidden className={`grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#EEF3F9] text-[22px] leading-none ${className}`}>
-      {ICON[catOf(task)] ?? "✨"}
+      ✨
     </span>
   );
 }

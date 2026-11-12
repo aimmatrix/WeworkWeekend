@@ -21,3 +21,46 @@
   bottom: 88px;
   left: 6px;
 }
+/* Scanner overlay shown on the photos while the model is looking at them. */
+.find .scan-grid {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+  background-size: 28px 28px;
+  animation: scan-pulse 1.6s ease-in-out infinite alternate;
+}
+.find .scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ff5a1f;
+  box-shadow: 0 0 22px 8px rgba(255, 90, 31, 0.55);
+  animation: scan-sweep 1.6s ease-in-out infinite alternate;
+}
+@keyframes scan-sweep {
+  from {
+    top: 2%;
+  }
+  to {
+    top: 98%;
+  }
+}
+@keyframes scan-pulse {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .find .scan-line,
+  .find .scan-grid {
+    animation: none;
+  }
+  .find .scan-line {
+    top: 50%;
+  }
+}

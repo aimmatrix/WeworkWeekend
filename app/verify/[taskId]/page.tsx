@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import type { VerifyResponse } from "@/lib/types";
-import { getTask, putPhoto, spotless as isSpotless, verify } from "../../capture/data";
+import { getTask, putPhoto, spotless as isSpotless, verify, type Verdict } from "../../capture/data";
 import { useQuip } from "../../capture/quip";
-import { arrivedAt, card, MOCK, muted, reward, type Task } from "../../find/data";
+import { arrivedAt, card, getSlot, MOCK, muted, reward, stayText, type Task } from "../../find/data";
 import { Emoji, TopBar } from "../../find/ui";
 
 const WAITING = [
@@ -19,7 +18,15 @@ const WAITING = [
 const photo = "aspect-[4/3] w-full rounded-[22px] object-cover";
 const tag = "absolute left-3 top-3 rounded-full bg-[#0B0B0C] px-3 py-1 text-[13px] font-bold text-white";
 
-function Before({ task }: { task: Task }) {
+/** The sweeping line and grid drawn over a photo while the model is looking at it. */
+const Scan = () => (
+  <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px]" aria-hidden>
+    <div className="scan-grid" />
+    <div className="scan-line" />
+  </div>
+);
+
+function Before({ task, scanning = false }: { task: Task; scanning?: boolean }) {
   return (
     <div className="relative">
       {task.before_url ? (
@@ -31,6 +38,7 @@ function Before({ task }: { task: Task }) {
         </div>
       )}
       <span className={tag}>before</span>
+      {scanning && <Scan />}
     </div>
   );
 }
@@ -41,7 +49,8 @@ export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [verdict, setVerdict] = useState<VerifyResponse | null>(null);
+  const [verdict, setVerdict] = useState<Verdict | null>(null);
+  const [stay, setStay] = useState<number | null>(null); // ms between scanning in and taking the photo
   const [spotless, setSpotless] = useState(false);
   const quip = useQuip(WAITING, busy);
   const after = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
@@ -52,6 +61,11 @@ export default function VerifyPage() {
 
   async function send() {
     if (!task || !file) return;
+    // The photo's own timestamp is the proof of when the work finished.
+    const scannedIn = new Date(arrivedAt(task.office_id) ?? Date.now()).getTime();
+    if (file.lastModified < scannedIn - 60_000)
+      return setError("that photo was taken before you scanned in at the door. grok wants a fresh one.");
+    setStay(file.lastModified - scannedIn);
     setBusy(true);
     setError("");
     try {
@@ -115,7 +129,11 @@ export default function VerifyPage() {
       <>
         <TopBar className="sticky top-0 bg-[#EEF3F9]" />
         <div className="flex flex-col gap-4 px-4 pb-8">
-          {MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>}
+          {verdict.model ? (
+            <p className="self-start rounded-full bg-[#DDF3E6] px-3 py-1 text-[13px] font-bold text-[#0A6B3B]">grok compared both photos</p>
+          ) : (
+            MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>
+          )}
           <div className={`flex flex-col gap-1.5 rounded-[32px] p-6 ${verdict.passed ? "bg-[#0B0B0C] text-white" : "bg-white"}`}>
             <p className={`text-sm ${verdict.passed ? "text-[#C9D3DF]" : muted}`}>
               {task.title} · grok is {Math.round(verdict.confidence * 100)}% sure
@@ -132,6 +150,20 @@ export default function VerifyPage() {
               {verdict.passed ? "passed. grok looked closely and found nothing to moan about." : "grok looked closely and found things to moan about."}
             </p>
           </div>
+
+          {stay !== null && (
+            <div className={`flex items-center gap-3 p-4 ${card}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/stickers/credits.png" alt="" className="h-11 w-11 shrink-0 -rotate-6 object-contain drop-shadow-[0_3px_5px_rgba(15,30,60,0.25)]" />
+              <p className="leading-snug">
+                <span className="font-bold">on site for {stayText(stay)}.</span>{" "}
+                <span className={muted}>
+                  measured from your door scan to the photo&apos;s timestamp. you planned {getSlot(task).hours}h.
+                  {stay < Number(task.credit_hours) * 5 * 60_000 ? " suspiciously quick. the supervisor may raise an eyebrow." : ""}
+                </span>
+              </p>
+            </div>
+          )}
 
           {spotless && (
             <div className="flex items-center gap-3 rounded-[26px] bg-[#FF5A1F] p-4">
@@ -209,7 +241,7 @@ export default function VerifyPage() {
           <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${reward(task.credit_hours)}`}>+{task.credit_hours}h</span>
         </div>
 
-        <Before task={task} />
+        <Before task={task} scanning={busy} />
         <p className={`px-1 text-sm leading-snug ${muted}`}>stand where the landlord stood. same angle, less filth.</p>
 
         {after && (
@@ -217,11 +249,18 @@ export default function VerifyPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={after} alt="Your after photo" className={photo} />
             <span className={tag}>after</span>
+            {busy && <Scan />}
           </div>
         )}
 
         {error && <p role="alert" className="px-1 font-bold text-[#B3261E]">{error}</p>}
+        {busy && (
+          <p role="status" className="display rounded-full bg-[#0B0B0C] px-5 py-4 text-center text-[15px] text-white">
+            {quip}
+          </p>
+        )}
         <label
+          hidden={busy}
           className={`display flex h-14 cursor-pointer items-center justify-center gap-2 rounded-full text-[15px] focus-within:ring-2 focus-within:ring-[#FF5A1F] ${
             file ? "border border-[#C9D3DF] bg-white" : "bg-[#0B0B0C] text-white"
           }`}
@@ -229,9 +268,9 @@ export default function VerifyPage() {
           <span aria-hidden>📸</span> {file ? "retake" : "shoot the after photo"}
           <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </label>
-        {file && (
-          <button onClick={send} disabled={busy} className="display h-14 rounded-full bg-[#FF5A1F] text-[15px] disabled:opacity-40">
-            {busy ? quip : "send to grok"}
+        {file && !busy && (
+          <button onClick={send} className="display h-14 rounded-full bg-[#FF5A1F] text-[15px]">
+            send to grok
           </button>
         )}
       </div>
