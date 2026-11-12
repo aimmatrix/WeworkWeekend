@@ -178,7 +178,7 @@ export default function MapPage() {
 function OfficeCard({ office, tasks }: { office: Office; tasks: Task[] }) {
   const hours = tasks.reduce((s, x) => s + Number(x.credit_hours), 0);
   const best = [...tasks].sort((a, b) => b.credit_hours - a.credit_hours)[0];
-  const photo = tasks.find((x) => x.before_url)?.before_url;
+  const photo = office.photo_urls?.[0] ?? tasks.find((x) => x.before_url)?.before_url;
   const mess = Math.max(0, Math.min(10, Math.round(office.dirt_score)));
 
   return (

@@ -60,9 +60,14 @@ export default function MyTasksPage() {
               <li className="font-bold before:mb-1.5 before:block before:h-[5px] before:rounded-full before:bg-[#FF5A1F]">after photo</li>
               <li className={`${muted} before:mb-1.5 before:block before:h-[5px] before:rounded-full before:bg-[#CDD7E2]`}>grok checks it</li>
             </ol>
-            <Link href={`/verify/${task.id}`} className="display flex h-[52px] items-center justify-center gap-2 rounded-full bg-[#0B0B0C] text-sm font-medium text-white">
-              <span aria-hidden>📸</span> add the after photo
-            </Link>
+            <div className="flex gap-2">
+              <Link href={`/verify/${task.id}`} className="display flex h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-[#0B0B0C] text-sm font-medium text-white">
+                <span aria-hidden>📸</span> after photo
+              </Link>
+              <Link href={`/find/pass/${task.id}`} className="display flex h-[52px] items-center justify-center gap-2 rounded-full border border-[#C9D3DF] px-5 text-sm font-medium">
+                <span aria-hidden>🎟️</span> check in
+              </Link>
+            </div>
           </article>
         ))}
 

@@ -10,6 +10,7 @@ export type Office = {
   crew_size: number;
   dirt_score: number;
   status: string;
+  photo_urls?: string[];
 };
 
 export type Task = {
@@ -24,7 +25,7 @@ export type Task = {
   claimed_by: string | null;
 };
 
-export type Booking = { office: string; hours: number; at: string };
+export type Booking = { office: string; hours: number; at: string; id?: string };
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -42,7 +43,7 @@ export const staticMap = (lng: number, lat: number, zoom: number, w = 448, h = 4
   MAPBOX_TOKEN &&
   `https://api.mapbox.com/styles/v1/mapbox/light-v11/static/${lng},${lat},${zoom}/${w}x${h}@2x?access_token=${MAPBOX_TOKEN}&addlayer=${waterLayer}&before_layer=land-structure-polygon`;
 
-async function sb<T>(path: string, init?: RequestInit): Promise<T> {
+export async function sb<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${URL}/rest/v1/${path}`, {
     ...init,
     headers: {
@@ -79,7 +80,7 @@ const MOCK_TASKS: Task[] = [
   t("t9", "o3", "Open plan", "Evict the bins", "bins", 1),
 ];
 
-function mockTasks(): Task[] {
+export function mockTasks(): Task[] {
   const saved = localStorage.getItem("mock_tasks");
   return saved ? JSON.parse(saved) : MOCK_TASKS;
 }
@@ -89,7 +90,8 @@ function mockTasks(): Task[] {
 export const getFounder = () => (typeof localStorage === "undefined" ? "" : (localStorage.getItem("founder") ?? ""));
 
 export async function loadAll(): Promise<{ offices: Office[]; tasks: Task[] }> {
-  if (MOCK) return { offices: MOCK_OFFICES, tasks: mockTasks() };
+  // Offices a landlord published from /capture on this device join the seed ones.
+  if (MOCK) return { offices: [...MOCK_OFFICES, ...JSON.parse(localStorage.getItem("mock_offices") ?? "[]")], tasks: mockTasks() };
   const [offices, tasks] = await Promise.all([
     sb<Office[]>("offices?status=eq.live&select=*"),
     sb<Task[]>("tasks?select=*"),
@@ -108,21 +110,27 @@ export async function claimTask(id: Task["id"], founder: string): Promise<boolea
     localStorage.setItem("mock_tasks", JSON.stringify(tasks));
     return true;
   }
-  // The status=eq.open filter makes the claim atomic: the loser updates 0 rows.
-  const rows = await sb<Task[]>(`tasks?id=eq.${encodeURIComponent(id)}&status=eq.open`, {
-    method: "PATCH",
-    body: JSON.stringify({ status: "claimed", claimed_by: founder }),
-  });
+  // claim_task only updates a task that is still open, so the loser gets no rows back.
+  const rows = await sb<Task[]>("rpc/claim_task", { method: "POST", body: JSON.stringify({ p_task_id: id, p_founder: founder }) });
   return rows.length > 0;
 }
 
-// Bookings live in localStorage because the contract has no bookings table.
-// Move to a Supabase table when spending must survive a device change.
+// Without a backend, bookings are kept in localStorage.
 export const getBookings = (): Booking[] => JSON.parse(localStorage.getItem("bookings") ?? "[]");
 
+/** A founder's desk bookings, newest first. */
+export async function listBookings(founder: string): Promise<Booking[]> {
+  if (MOCK) return [...getBookings()].reverse();
+  const rows = await sb<{ id: string; hours: number; created_at: string; office: { name: string } | null }[]>(
+    `bookings?founder=eq.${encodeURIComponent(founder)}&select=id,hours,created_at,office:offices(name)&order=created_at.desc`,
+  );
+  return rows.map((b) => ({ id: b.id, office: b.office?.name ?? "office", hours: Number(b.hours), at: b.created_at }));
+}
+
 export async function getBalance(founder: string): Promise<number> {
+  if (!MOCK) return Number(await sb<number>("rpc/founder_balance", { method: "POST", body: JSON.stringify({ p_founder: founder }) }));
   const credits = MOCK
-    ? [{ hours: 4, supervisor_approved: true as boolean | null }] // mock: a starter balance so booking can be demoed
+    ? [{ hours: 4, supervisor_approved: true as boolean | null }, ...JSON.parse(localStorage.getItem("mock_credits") ?? "[]")] // mock: a starter balance plus anything earned on /verify
     : await sb<{ hours: number; supervisor_approved: boolean | null }[]>(
         `credits?founder=eq.${encodeURIComponent(founder)}&select=hours,supervisor_approved`,
       );
@@ -131,14 +139,19 @@ export async function getBalance(founder: string): Promise<number> {
   return earned - spent;
 }
 
-export async function bookDesk(founder: string, office: string, hours: number): Promise<boolean> {
+export async function bookDesk(founder: string, office: Office, hours: number): Promise<boolean> {
   if (hours <= 0 || hours > (await getBalance(founder))) return false;
-  localStorage.setItem("bookings", JSON.stringify([...getBookings(), { office, hours, at: new Date().toISOString() }]));
+  if (MOCK) localStorage.setItem("bookings", JSON.stringify([...getBookings(), { office: office.name, hours, at: new Date().toISOString() }]));
+  else
+    await sb("bookings", {
+      method: "POST",
+      body: JSON.stringify({ founder, office_id: office.id, hours, date: new Date().toISOString().slice(0, 10) }),
+    });
   return true;
 }
 
-/** "Furniture reset" -> "furniture", so categories match the tariff keys. */
-export const catOf = (task: Task) => (task.category ?? "").toLowerCase().split(" ")[0];
+/** "Furniture reset" and "furniture_reset" -> "furniture", so categories match the tariff keys. */
+export const catOf = (task: Task) => (task.category ?? "").toLowerCase().split(/[ _]/)[0];
 
 export const openHours = (tasks: Task[], officeId: Office["id"]) =>
   tasks.filter((x) => x.office_id === officeId && x.status === "open").reduce((s, x) => s + Number(x.credit_hours), 0);

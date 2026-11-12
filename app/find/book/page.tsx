@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { bookDesk, card, getBalance, getBookings, getFounder, loadAll, muted, type Booking, type Office } from "../data";
+import { bookDesk, card, getBalance, getFounder, listBookings, loadAll, muted, type Booking, type Office } from "../data";
 import { TopBar } from "../ui";
 
 export default function BookPage() {
@@ -14,13 +14,11 @@ export default function BookPage() {
   const [name, setName] = useState("");
 
   const refresh = () =>
-    getBalance(getFounder())
-      .catch(() => 0)
-      .then((b) => {
-        setBalance(b);
-        setName(getFounder());
-        setBookings(getBookings());
-      });
+    Promise.all([getBalance(getFounder()).catch(() => 0), listBookings(getFounder()).catch(() => [])]).then(([b, list]) => {
+      setBalance(b);
+      setName(getFounder());
+      setBookings(list);
+    });
 
   useEffect(() => {
     loadAll().then((d) => setOffices(d.offices), () => {});
@@ -58,8 +56,9 @@ export default function BookPage() {
             className={`flex flex-col gap-3.5 !rounded-[28px] p-[18px] ${card}`}
             onSubmit={async (e) => {
               e.preventDefault();
-              const office = String(new FormData(e.currentTarget).get("office") ?? "");
-              const ok = !!office && (await bookDesk(getFounder(), office, pick));
+              const id = String(new FormData(e.currentTarget).get("office") ?? "");
+              const office = offices.find((o) => String(o.id) === id);
+              const ok = !!office && (await bookDesk(getFounder(), office, pick).catch(() => false));
               setError(ok ? "" : "pick an office and an amount you can afford.");
               if (ok) {
                 await refresh();
@@ -72,7 +71,7 @@ export default function BookPage() {
               <legend className="sr-only">Office</legend>
               {offices.map((o, i) => (
                 <label key={o.id}>
-                  <input type="radio" name="office" value={o.name} defaultChecked={i === 0} className="peer sr-only" />
+                  <input type="radio" name="office" value={String(o.id)} defaultChecked={i === 0} className="peer sr-only" />
                   <span className="flex h-11 items-center rounded-full border border-[#C9D3DF] px-4 font-medium peer-checked:border-[#0B0B0C] peer-checked:bg-[#0B0B0C] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#FF5A1F]">
                     {o.name}
                   </span>
@@ -101,8 +100,8 @@ export default function BookPage() {
         {bookings.length > 0 && (
           <>
             <h2 className={`px-1 text-[13px] font-bold ${muted}`}>desks you&apos;ve earned</h2>
-            {[...bookings].reverse().map((b) => (
-              <div key={b.at} className={`flex min-h-[64px] items-center gap-3 py-2 pl-3.5 pr-4 ${card}`}>
+            {bookings.map((b) => (
+              <div key={b.id ?? b.at} className={`flex min-h-[64px] items-center gap-3 py-2 pl-3.5 pr-4 ${card}`}>
                 <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#EEF3F9] text-[22px] leading-none">
                   🪑
                 </span>

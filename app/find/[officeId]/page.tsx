@@ -20,7 +20,7 @@ export default function OfficePage() {
     );
   }, [officeId]);
 
-  const photos = [...new Set(tasks.map((x) => x.before_url).filter(Boolean))] as string[];
+  const photos = [...new Set([...(office?.photo_urls ?? []), ...tasks.map((x) => x.before_url)].filter(Boolean))] as string[];
   // Assumes dirt_score is 0-10; rescale here if the backend picks another range.
   const mess = office ? Math.max(0, Math.min(10, Math.round(office.dirt_score))) : 0;
   const hours = office ? openHours(tasks, office.id) : 0;
