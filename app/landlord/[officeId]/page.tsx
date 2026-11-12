@@ -9,7 +9,7 @@ import { card, grim, loadAll, muted, reward, staticMap, type Office } from "../.
 import { Emoji } from "../../find/ui";
 import { jobsAt, tally, type Job } from "../data";
 
-type Epc = { rating?: string; score?: number; certificate?: string; url?: string };
+type Epc = { rating?: string; score?: number; certificate?: string; url?: string; matched?: string };
 
 export default function LandlordOffice() {
   const { officeId } = useParams<{ officeId: string }>();
@@ -94,6 +94,7 @@ export default function LandlordOffice() {
           <p className={`px-4 py-3 text-sm leading-snug ${card}`}>
             <span className="display mr-2 text-lg">epc {epc.rating}</span>
             {epc.score != null && `score ${epc.score}. `}
+            {epc.matched === "postcode" && "nearest certificate in this postcode, not necessarily this unit. "}
             {epc.certificate &&
               (epc.url ? (
                 <a href={epc.url} target="_blank" rel="noreferrer" className="underline">
