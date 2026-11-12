@@ -1,0 +1,23 @@
+/* Founder app look: pale sheets, black pills, wide lowercase headings. */
+.find {
+  font-family: var(--font-body), system-ui, sans-serif;
+  text-transform: lowercase;
+}
+.find .display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+}
+.find input {
+  text-transform: none;
+}
+.find .no-scrollbar {
+  scrollbar-width: none;
+}
+.find .mapboxgl-map {
+  font-family: inherit;
+}
+/* Lift the Mapbox logo and attribution clear of the filter chips. */
+.find .mapboxgl-ctrl-bottom-left {
+  bottom: 88px;
+  left: 6px;
+}
