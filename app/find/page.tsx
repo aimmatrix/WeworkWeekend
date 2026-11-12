@@ -5,8 +5,13 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { card, catOf, grim, ICON, loadAll, MAP_STYLE, MAPBOX_TOKEN, MOCK, muted, officeSticker, openHours, STICKER, TARIFF, WATER, type Office, type Task } from "./data";
+import { card, catOf, grim, ICON, loadAll, MAP_STYLE, MAPBOX_TOKEN, muted, officeSticker, openHours, STICKER, TARIFF, WATER, type Office, type Task } from "./data";
+import listings from "./listings.json";
 import { TopBar } from "./ui";
+
+type Listing = { id: string; agent: string; address: string; postcode: string; sqft: number | null; url: string; lat: number; lng: number };
+// London offices from the hackathon's live listings dataset (crawled 24 October 2026).
+const LISTINGS = listings as Listing[];
 
 export default function MapPage() {
   const router = useRouter();
@@ -19,6 +24,7 @@ export default function MapPage() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("");
   const [error, setError] = useState("");
+  const [listing, setListing] = useState<Listing | null>(null);
 
   useEffect(() => {
     let dead = false;
@@ -42,7 +48,18 @@ export default function MapPage() {
         attributionControl: false,
       }));
       m.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
-      m.on("style.load", () => m.setPaintProperty("water", "fill-color", WATER));
+      m.on("style.load", () => {
+        m.setPaintProperty("water", "fill-color", WATER);
+        // Empty offices from the open listings data that nobody has scanned yet: small grey dots under the pins.
+        m.addSource("listings", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: LISTINGS.map((l, i) => ({ type: "Feature", id: i, properties: {}, geometry: { type: "Point", coordinates: [l.lng, l.lat] } })) },
+        });
+        m.addLayer({ id: "listings", type: "circle", source: "listings", paint: { "circle-radius": 7, "circle-color": "#7C8896", "circle-stroke-color": "#FFFFFF", "circle-stroke-width": 2.5 } });
+        m.on("click", "listings", (e) => setListing(LISTINGS[Number((e.features?.[0] as { id?: number } | undefined)?.id)] ?? null));
+        m.on("mouseenter", "listings", () => (m.getCanvas().style.cursor = "pointer"));
+        m.on("mouseleave", "listings", () => (m.getCanvas().style.cursor = ""));
+      });
       // The sheet below changes height with the filters; Mapbox only follows window resizes on its own.
       const fit = new ResizeObserver(() => m.resize());
       fit.observe(mapEl.current);
@@ -142,6 +159,33 @@ export default function MapPage() {
           </svg>
         </button>
 
+        {listing && (
+          <aside className={`absolute bottom-[68px] left-4 right-[72px] z-10 flex flex-col gap-1.5 p-4 ${card}`}>
+            <div className="flex items-start gap-2">
+              <p className="min-w-0 flex-1 font-bold leading-snug">{listing.address}</p>
+              <button onClick={() => setListing(null)} aria-label="Close" className="-mr-2 -mt-2 grid h-11 w-11 shrink-0 place-items-center text-2xl leading-none text-[#4E5967]">
+                ×
+              </button>
+            </div>
+            <p className={`text-sm ${muted}`}>
+              {listing.sqft ? `${listing.sqft.toLocaleString()} sq ft · ` : ""}empty and listed, but not on the map yet.
+            </p>
+            <p className="text-sm">
+              know the landlord?{" "}
+              <Link href="/capture" className="font-bold underline">
+                get them to scan it
+              </Link>
+            </p>
+            <p className={`text-[13px] ${muted}`}>
+              source:{" "}
+              <a href={listing.url} target="_blank" rel="noreferrer" className="font-semibold text-[#0B0B0C] underline">
+                {listing.agent} listing
+              </a>
+              , open listings data crawled 24 oct 2026
+            </p>
+          </aside>
+        )}
+
         <div className="no-scrollbar absolute inset-x-0 bottom-3 z-10 flex gap-2 overflow-x-auto px-4">
           <button onClick={() => setCat("")} aria-pressed={!cat} className={`${chip} font-semibold ${cat ? "border border-[#C9D3DF] bg-white" : "bg-[#0B0B0C] text-white"}`}>
             all tasks
@@ -166,7 +210,7 @@ export default function MapPage() {
         <div className="flex items-baseline justify-between px-5 pt-3.5">
           <h1 className="display text-lg">open this weekend</h1>
           <span className={`text-sm ${muted}`}>
-            {shown.length} {shown.length === 1 ? "office" : "offices"} {MOCK ? "(demo)" : "need you"}
+            {shown.length} live · {LISTINGS.length} empty nearby
           </span>
         </div>
         {error && <p className="mx-4 mt-3 rounded-3xl bg-white p-4 text-sm text-red-700">{error}</p>}

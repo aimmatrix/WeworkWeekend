@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { card, grim, loadAll, muted, openHours, staticMap, type Office, type Task } from "../data";
+import { EnergyCertificate } from "../epc";
 import { TaskList, TopBar } from "../ui";
 
 export default function OfficePage() {
@@ -71,6 +72,8 @@ export default function OfficePage() {
                 <dt className={`text-[13px] ${muted}`}>crew needed</dt>
               </div>
             </dl>
+
+            <EnergyCertificate address={office.address} crew={office.crew_size} />
 
             <div>
               <h2 className={`mb-2 px-1 text-[13px] font-bold ${muted}`}>pick your poison. this is what you&apos;d be cleaning</h2>

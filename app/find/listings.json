@@ -1,0 +1,602 @@
+[
+{
+"id": "lsh-a087150a",
+"agent": "Lambert Smith Hampton",
+"address": "Cavendish Square London W1G 0PW",
+"postcode": "W1G 0PW",
+"sqft": 5000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2034877",
+"lat": 51.515995,
+"lng": -0.144051
+},
+{
+"id": "lsh-3d86919b",
+"agent": "Lambert Smith Hampton",
+"address": "Newhams Row London Greater London SE1 3UZ",
+"postcode": "SE1 3UZ",
+"sqft": 2960,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2041072",
+"lat": 51.49901,
+"lng": -0.080454
+},
+{
+"id": "lsh-92232982",
+"agent": "Lambert Smith Hampton",
+"address": "48 Dover Street London W1S 4FF",
+"postcode": "W1S 4FF",
+"sqft": 2000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2043915",
+"lat": 51.507894,
+"lng": -0.141845
+},
+{
+"id": "lsh-c72cf74c",
+"agent": "Lambert Smith Hampton",
+"address": "Broadwick Street London W1F",
+"postcode": "W1F 0DQ",
+"sqft": 3000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2043962",
+"lat": 51.513316,
+"lng": -0.136133
+},
+{
+"id": "lsh-265c2012",
+"agent": "Lambert Smith Hampton",
+"address": "Folgate Street London E1",
+"postcode": "E1 6BX",
+"sqft": 30000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044052",
+"lat": 51.520982,
+"lng": -0.077324
+},
+{
+"id": "lsh-458f97cb",
+"agent": "Lambert Smith Hampton",
+"address": "Dallington Street London EC1V 0LN",
+"postcode": "EC1V 0LN",
+"sqft": 10000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044058",
+"lat": 51.524636,
+"lng": -0.100669
+},
+{
+"id": "lsh-90fe3a12",
+"agent": "Lambert Smith Hampton",
+"address": "Borough High Street London SE1",
+"postcode": "SE1 1LB",
+"sqft": 10000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044059",
+"lat": 51.50258,
+"lng": -0.092566
+},
+{
+"id": "lsh-d4964baa",
+"agent": "Lambert Smith Hampton",
+"address": "Eastcastle Street London W1W 8DY",
+"postcode": "W1W 8DY",
+"sqft": 5000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044065",
+"lat": 51.51684,
+"lng": -0.137762
+},
+{
+"id": "lsh-191cad1b",
+"agent": "Lambert Smith Hampton",
+"address": "Central Street London EC1V",
+"postcode": "EC1V 8AB",
+"sqft": 10000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044066",
+"lat": 51.525322,
+"lng": -0.09643
+},
+{
+"id": "lsh-165976dc",
+"agent": "Lambert Smith Hampton",
+"address": "Princelet Street London E1 5LP",
+"postcode": "E1 5LP",
+"sqft": 50000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044067",
+"lat": 51.519646,
+"lng": -0.070447
+},
+{
+"id": "lsh-da1d04aa",
+"agent": "Lambert Smith Hampton",
+"address": "241 Southwark Bridge Road London SE1 6FP",
+"postcode": "SE1 6FP",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044069",
+"lat": 51.497076,
+"lng": -0.09974
+},
+{
+"id": "lsh-9ff22242",
+"agent": "Lambert Smith Hampton",
+"address": "Soho Square London W1D 3QY",
+"postcode": "W1D 3QY",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044216",
+"lat": 51.514917,
+"lng": -0.132781
+},
+{
+"id": "lsh-8d6eb3cf",
+"agent": "Lambert Smith Hampton",
+"address": "Neal Street London WC2H",
+"postcode": "WC2H 9QL",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044219",
+"lat": 51.513419,
+"lng": -0.12457
+},
+{
+"id": "lsh-a0358e6c",
+"agent": "Lambert Smith Hampton",
+"address": "Upper St Martins Lane London WC2H 9EA",
+"postcode": "WC2H 9EA",
+"sqft": 8000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044220",
+"lat": 51.512404,
+"lng": -0.127451
+},
+{
+"id": "lsh-57b9c692",
+"agent": "Lambert Smith Hampton",
+"address": "Lloyds Avenue London EC3N",
+"postcode": "EC3N 3DS",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044221",
+"lat": 51.51205,
+"lng": -0.077787
+},
+{
+"id": "lsh-06ef24db",
+"agent": "Lambert Smith Hampton",
+"address": "Wardour Street London W1F",
+"postcode": "W1F 8WE",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044222",
+"lat": 51.514303,
+"lng": -0.134882
+},
+{
+"id": "lsh-3c02243c",
+"agent": "Lambert Smith Hampton",
+"address": "Angel Square London EC1V",
+"postcode": "EC1V 1NY",
+"sqft": 5000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044223",
+"lat": 51.532326,
+"lng": -0.105755
+},
+{
+"id": "lsh-da1c401b",
+"agent": "Lambert Smith Hampton",
+"address": "Pentonville Road London N1",
+"postcode": "N1 9JY",
+"sqft": 5500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044225",
+"lat": 51.53118,
+"lng": -0.120062
+},
+{
+"id": "lsh-23d46bbe",
+"agent": "Lambert Smith Hampton",
+"address": "Wimpole Street London W1G 0EF",
+"postcode": "W1G 0EF",
+"sqft": 7000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044226",
+"lat": 51.516222,
+"lng": -0.147573
+},
+{
+"id": "lsh-b3c5bf35",
+"agent": "Lambert Smith Hampton",
+"address": "Stratton Street London W1J 8LQ",
+"postcode": "W1J 8LQ",
+"sqft": 3000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044229",
+"lat": 51.507684,
+"lng": -0.144505
+},
+{
+"id": "lsh-4f5c75ab",
+"agent": "Lambert Smith Hampton",
+"address": "Red Lion Square Holborn London WC1R 4HQ",
+"postcode": "WC1R 4HQ",
+"sqft": 6000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044231",
+"lat": 51.51974,
+"lng": -0.118847
+},
+{
+"id": "lsh-fe1ce75a",
+"agent": "Lambert Smith Hampton",
+"address": "Long Lane London SE1 4PG",
+"postcode": "SE1 4PG",
+"sqft": 15000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044389",
+"lat": 51.501281,
+"lng": -0.091756
+},
+{
+"id": "lsh-b2342422",
+"agent": "Lambert Smith Hampton",
+"address": "Portman Street London Greater London W1H 6DU",
+"postcode": "W1H 6DU",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044709",
+"lat": 51.514045,
+"lng": -0.155517
+},
+{
+"id": "lsh-b7a92789",
+"agent": "Lambert Smith Hampton",
+"address": "Yard London Greater London EC1Y",
+"postcode": "EC1Y 8AF",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044713",
+"lat": 51.525145,
+"lng": -0.088322
+},
+{
+"id": "lsh-35a0a6d4",
+"agent": "Lambert Smith Hampton",
+"address": "Terrace London Greater London W2",
+"postcode": "W2 6LG",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044720",
+"lat": 51.516785,
+"lng": -0.178352
+},
+{
+"id": "lsh-2e0b9521",
+"agent": "Lambert Smith Hampton",
+"address": "High Street London Greater London SE1",
+"postcode": "SE1 1JA",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044722",
+"lat": 51.501695,
+"lng": -0.092358
+},
+{
+"id": "lsh-c92c6b2e",
+"agent": "Lambert Smith Hampton",
+"address": "Hawley Crescent London NW1",
+"postcode": "NW1 8NP",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044724",
+"lat": 51.540901,
+"lng": -0.14324
+},
+{
+"id": "lsh-381f425d",
+"agent": "Lambert Smith Hampton",
+"address": "Park Street London W1K",
+"postcode": "W1K 7JL",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044725",
+"lat": 51.512945,
+"lng": -0.155893
+},
+{
+"id": "lsh-f31f5fdf",
+"agent": "Lambert Smith Hampton",
+"address": "Ingestre Place London Greater London W1F",
+"postcode": "W1F 0JL",
+"sqft": 3500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044728",
+"lat": 51.512969,
+"lng": -0.135225
+},
+{
+"id": "lsh-131ae5c5",
+"agent": "Lambert Smith Hampton",
+"address": "Albert Embankment London SE1 7TP",
+"postcode": "SE1 7TP",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044850",
+"lat": 51.487956,
+"lng": -0.123714
+},
+{
+"id": "lsh-71a0e80b",
+"agent": "Lambert Smith Hampton",
+"address": "Whitechapel High Street London E1 7QA",
+"postcode": "E1 7QA",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044858",
+"lat": 51.515309,
+"lng": -0.073585
+},
+{
+"id": "lsh-600d4ed5",
+"agent": "Lambert Smith Hampton",
+"address": "Old Broad Street London EC2N 1AR",
+"postcode": "EC2N 1AR",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044860",
+"lat": 51.514543,
+"lng": -0.086114
+},
+{
+"id": "lsh-ffc0342c",
+"agent": "Lambert Smith Hampton",
+"address": "Southampton Place London WC1A 2DA",
+"postcode": "WC1A 2DA",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044866",
+"lat": 51.518213,
+"lng": -0.121778
+},
+{
+"id": "lsh-e55adec6",
+"agent": "Lambert Smith Hampton",
+"address": "Hanover Square London W1S 1HN",
+"postcode": "W1S 1HN",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044871",
+"lat": 51.514536,
+"lng": -0.143895
+},
+{
+"id": "lsh-e37c1458",
+"agent": "Lambert Smith Hampton",
+"address": "Eaton Gate London SW1W 9BJ",
+"postcode": "SW1W 9BJ",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044873",
+"lat": 51.493883,
+"lng": -0.154357
+},
+{
+"id": "lsh-58c4c136",
+"agent": "Lambert Smith Hampton",
+"address": "Pont Street London SW1X 0BD",
+"postcode": "SW1X 0BD",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044877",
+"lat": 51.496553,
+"lng": -0.162317
+},
+{
+"id": "lsh-e27aea67",
+"agent": "Lambert Smith Hampton",
+"address": "Brook Street London W1K 5DB",
+"postcode": "W1K 5DB",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044879",
+"lat": 51.513034,
+"lng": -0.147314
+},
+{
+"id": "lsh-f3aa384f",
+"agent": "Lambert Smith Hampton",
+"address": "Marylebone Road London NW1 5PU",
+"postcode": "NW1 5PU",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044883",
+"lat": 51.521159,
+"lng": -0.161298
+},
+{
+"id": "lsh-cf73d883",
+"agent": "Lambert Smith Hampton",
+"address": "Gracechurch Street London EC3V 0BT",
+"postcode": "EC3V 0BT",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2044887",
+"lat": 51.511371,
+"lng": -0.085714
+},
+{
+"id": "lsh-fa02f0ef",
+"agent": "Lambert Smith Hampton",
+"address": "4 Maguire Street London SE1",
+"postcode": "SE1 2NQ",
+"sqft": 4599,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045069",
+"lat": 51.502367,
+"lng": -0.072388
+},
+{
+"id": "lsh-e0bc83ae",
+"agent": "Lambert Smith Hampton",
+"address": "Henrietta Street London Greater London WC2E 8PS",
+"postcode": "WC2E 8PS",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045070",
+"lat": 51.511181,
+"lng": -0.122918
+},
+{
+"id": "lsh-76d88e8d",
+"agent": "Lambert Smith Hampton",
+"address": "Street London Greater London W1T",
+"postcode": "W1T 1AN",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045077",
+"lat": 51.518221,
+"lng": -0.13243
+},
+{
+"id": "lsh-0f92f8b8",
+"agent": "Lambert Smith Hampton",
+"address": "Old Street London Greater London EC1V 9DD",
+"postcode": "EC1V 9DD",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045081",
+"lat": 51.525894,
+"lng": -0.085162
+},
+{
+"id": "lsh-0adb0c71",
+"agent": "Lambert Smith Hampton",
+"address": "Red Lion Street London Greater London WC1R 4PS",
+"postcode": "WC1R 4PS",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045131",
+"lat": 51.51934,
+"lng": -0.116889
+},
+{
+"id": "lsh-a475d802",
+"agent": "Lambert Smith Hampton",
+"address": "Green Street London Greater London W1K",
+"postcode": "W1K 7AX",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045173",
+"lat": 51.512673,
+"lng": -0.155774
+},
+{
+"id": "lsh-6bc17be2",
+"agent": "Lambert Smith Hampton",
+"address": "Way London Greater London WC1A",
+"postcode": "WC1A 2SL",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045174",
+"lat": 51.517427,
+"lng": -0.124362
+},
+{
+"id": "lsh-0e4b4e3d",
+"agent": "Lambert Smith Hampton",
+"address": "Warnford Court Throgmorton Street London Greater London EC2N 2AT",
+"postcode": "EC2N 2AT",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045175",
+"lat": 51.514895,
+"lng": -0.086748
+},
+{
+"id": "lsh-87ffb223",
+"agent": "Lambert Smith Hampton",
+"address": "Square London Greater London N1C",
+"postcode": "N1C 4AG",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045177",
+"lat": 51.533481,
+"lng": -0.125043
+},
+{
+"id": "lsh-f2cc87fe",
+"agent": "Lambert Smith Hampton",
+"address": "Street London Greater London EC1N",
+"postcode": "EC1N 8SS",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045180",
+"lat": 51.519385,
+"lng": -0.106278
+},
+{
+"id": "lsh-0feaf69d",
+"agent": "Lambert Smith Hampton",
+"address": "Foley Street London Greater London W1W 7TL",
+"postcode": "W1W 7TL",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045181",
+"lat": 51.5191,
+"lng": -0.140206
+},
+{
+"id": "lsh-bc12eb6d",
+"agent": "Lambert Smith Hampton",
+"address": "London Greater London W1W",
+"postcode": "W1W 6XX",
+"sqft": 21089,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045229",
+"lat": 51.520103,
+"lng": -0.141636
+},
+{
+"id": "lsh-4297dcb6",
+"agent": "Lambert Smith Hampton",
+"address": "King William Street London Greater London EC4N 7BE",
+"postcode": "EC4N 7BE",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045230",
+"lat": 51.511611,
+"lng": -0.087173
+},
+{
+"id": "lsh-370cb104",
+"agent": "Lambert Smith Hampton",
+"address": "Bevis Marks London Greater London EC3A",
+"postcode": "EC3A 7BA",
+"sqft": 4500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045240",
+"lat": 51.514974,
+"lng": -0.079466
+},
+{
+"id": "lsh-3c5456a0",
+"agent": "Lambert Smith Hampton",
+"address": "10 Fetter Lane London EC4A 1BR",
+"postcode": "EC4A 1BR",
+"sqft": 5254,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045764",
+"lat": 51.514778,
+"lng": -0.109496
+},
+{
+"id": "lsh-b3d12815",
+"agent": "Lambert Smith Hampton",
+"address": "One Canada Square London E14 5AA",
+"postcode": "E14 5AA",
+"sqft": 5000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045875",
+"lat": 51.504938,
+"lng": -0.019496
+},
+{
+"id": "lsh-a5ebd4af",
+"agent": "Lambert Smith Hampton",
+"address": "The Crosspoint London EC2M",
+"postcode": "EC2M 7PP",
+"sqft": 5500,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045876",
+"lat": 51.517032,
+"lng": -0.081613
+},
+{
+"id": "lsh-7587a6c4",
+"agent": "Lambert Smith Hampton",
+"address": "Devonshire Street London W1W 5DT",
+"postcode": "W1W 5DT",
+"sqft": 4000,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2045878",
+"lat": 51.522399,
+"lng": -0.14467
+},
+{
+"id": "lsh-6eb722e6",
+"agent": "Lambert Smith Hampton",
+"address": "Fifth Floor Wigmore Street London Greater London W1U 1QX",
+"postcode": "W1U 1QX",
+"sqft": 9040,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2046133",
+"lat": 51.516185,
+"lng": -0.148094
+},
+{
+"id": "lsh-f708e051",
+"agent": "Lambert Smith Hampton",
+"address": "65 Southwark Street London SE1",
+"postcode": "SE1 0HR",
+"sqft": 4058,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2046173",
+"lat": 51.505027,
+"lng": -0.097608
+},
+{
+"id": "lsh-e66859c8",
+"agent": "Lambert Smith Hampton",
+"address": "52 Bow Lane London Greater London EC4M",
+"postcode": "EC4M 9DJ",
+"sqft": 3754,
+"url": "https://www.lsh.co.uk/find/properties/london/london/2046285",
+"lat": 51.513599,
+"lng": -0.093331
+}
+]
