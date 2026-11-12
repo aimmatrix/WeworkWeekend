@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { card, grim, loadAll, muted, openHours, staticMap, type Office, type Task } from "../data";
 import { TaskList, TopBar } from "../ui";
 
@@ -10,15 +10,21 @@ export default function OfficePage() {
   const [office, setOffice] = useState<Office | null | undefined>(undefined);
   const [tasks, setTasks] = useState<Task[]>([]);
 
+  const load = useCallback(
+    () =>
+      loadAll().then(
+        (d) => {
+          setOffice(d.offices.find((o) => String(o.id) === officeId) ?? null);
+          setTasks(d.tasks.filter((x) => String(x.office_id) === officeId));
+        },
+        () => setOffice(null),
+      ),
+    [officeId],
+  );
+
   useEffect(() => {
-    loadAll().then(
-      (d) => {
-        setOffice(d.offices.find((o) => String(o.id) === officeId) ?? null);
-        setTasks(d.tasks.filter((x) => String(x.office_id) === officeId));
-      },
-      () => setOffice(null),
-    );
-  }, [officeId]);
+    load();
+  }, [load]);
 
   const photos = [...new Set([...(office?.photo_urls ?? []), ...tasks.map((x) => x.before_url)].filter(Boolean))] as string[];
   // Assumes dirt_score is 0-10; rescale here if the backend picks another range.
@@ -81,7 +87,7 @@ export default function OfficePage() {
 
             <div>
               <h2 className={`mb-2 px-1 text-[13px] font-bold ${muted}`}>pick your poison</h2>
-              <TaskList tasks={tasks} />
+              <TaskList tasks={tasks} onChange={load} />
             </div>
           </>
         )}

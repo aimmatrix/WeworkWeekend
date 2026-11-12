@@ -3,6 +3,7 @@ import Link from "next/link";
 const links = [
   ["/find", "Find a desk", "Founder: map of empty offices"],
   ["/capture", "Scan an office", "Landlord: photos → Grok checklist"],
+  ["/checkin", "Door list", "On-site lead: check the cleaners in"],
   ["/ledger", "My credits", "Every hour traced to its photos"],
   ["/supervisor", "Supervisor queue", "Approve or overturn Grok"],
 ] as const;

@@ -71,7 +71,7 @@ export function TopBar({ children, className = "" }: { children?: React.ReactNod
   );
 }
 
-export function TaskList({ tasks }: { tasks: Task[] }) {
+export function TaskList({ tasks, onChange }: { tasks: Task[]; onChange?: () => void }) {
   const [busy, setBusy] = useState<Task["id"] | null>(null);
   const [mine, setMine] = useState<Task["id"][]>([]);
   const [lost, setLost] = useState<Task["id"][]>([]);
@@ -83,6 +83,7 @@ export function TaskList({ tasks }: { tasks: Task[] }) {
     (ok ? setMine : setLost)((list) => [...list, id]);
     setBusy(null);
     window.dispatchEvent(new Event("wallet"));
+    onChange?.();
   }
 
   const sorted = [...tasks].sort((a, b) => b.credit_hours - a.credit_hours);

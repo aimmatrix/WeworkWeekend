@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { shareDoor } from "../checkin/door";
-import { card, grim, muted, reward, type Office, type Task } from "../find/data";
+import { card, grim, MOCK, muted, reward, type Office, type Task } from "../find/data";
 import { Emoji } from "../find/ui";
 import { assess, createOffice, publish, putPhoto, removeTask, type Assessment } from "./data";
 import { useQuip } from "./quip";
@@ -29,6 +29,7 @@ export default function CapturePage() {
   const [live, setLive] = useState(false);
   const [copied, setCopied] = useState(false);
   const quip = useQuip(WAITING, busy === "grok");
+  const draft = useRef<Office | null>(null); // kept so a retry does not create a second office
 
   async function scan(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,7 +37,7 @@ export default function CapturePage() {
     setError("");
     try {
       setBusy("uploading the evidence…");
-      const made = await createOffice(String(form.get("name")).trim(), String(form.get("address")).trim());
+      const made = (draft.current ??= await createOffice(String(form.get("name")).trim(), String(form.get("address")).trim()));
       const photoUrls = await Promise.all(photos.map((p) => putPhoto(p.file, `offices/${made.id}`)));
       setBusy("grok");
       setResult(await assess(made, photoUrls));
@@ -94,6 +95,7 @@ export default function CapturePage() {
           <p className={`text-sm ${muted}`}>grok&apos;s verdict on</p>
           <h1 className="display text-[26px] leading-tight">{office.name}</h1>
         </div>
+        {MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>}
         <dl className="grid grid-cols-3 gap-2">
           <div className={stat}>
             <dd className="display text-xl tabular-nums">{hours}h</dd>

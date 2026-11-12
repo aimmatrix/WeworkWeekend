@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { card, getFounder, loadAll, muted, reward, type Office, type Task } from "../data";
+import { card, getFounder, loadAll, MOCK, muted, reward, type Office, type Task } from "../data";
 import { Emoji, TopBar } from "../ui";
 
 type Row = Task & { office?: Office };
@@ -73,7 +73,7 @@ export default function MyTasksPage() {
 
         {done.length > 0 && <h2 className={`mt-2 ${label}`}>earned</h2>}
         {done.map((task) => (
-          <Link key={task.id} href="/ledger" className={`flex min-h-[72px] items-center gap-3 py-2 pl-3.5 pr-4 ${card}`}>
+          <Link key={task.id} href={MOCK ? "/find/book" : "/ledger"} className={`flex min-h-[72px] items-center gap-3 py-2 pl-3.5 pr-4 ${card}`}>
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#DDF3E6] font-bold text-[#0A6B3B]">✓</span>
             <div className="min-w-0 flex-1">
               <p className="truncate font-bold">{task.title}</p>
@@ -83,7 +83,7 @@ export default function MyTasksPage() {
           </Link>
         ))}
 
-        {rows && rows.length > 0 && <p className={`px-1 pt-2 text-sm leading-snug ${muted}`}>no photo, no hours. grok has seen things and cannot be bribed.</p>}
+        {todo.length > 0 && <p className={`px-1 pt-2 text-sm leading-snug ${muted}`}>no photo, no hours. grok has seen things and cannot be bribed.</p>}
       </div>
     </>
   );

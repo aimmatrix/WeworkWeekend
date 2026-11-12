@@ -43,6 +43,10 @@ export default function MapPage() {
       }));
       m.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
       m.on("style.load", () => m.setPaintProperty("water", "fill-color", WATER));
+      // The sheet below changes height with the filters; Mapbox only follows window resizes on its own.
+      const fit = new ResizeObserver(() => m.resize());
+      fit.observe(mapEl.current);
+      m.on("remove", () => fit.disconnect());
 
       const best = Math.max(0, ...data.offices.map((o) => openHours(data.tasks, o.id)));
       const bounds = new mapboxgl.LngLatBounds();

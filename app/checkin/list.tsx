@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { card, loadAll, muted, type Office, type Task } from "../find/data";
+import { card, loadAll, MOCK, muted, type Office, type Task } from "../find/data";
 import { clock, doorKey, getCheckins, setCheckin, shareDoor } from "./door";
 
 /** The door list: who is coming to clean, and who has been let in. Anyone with the link can run it. */
@@ -133,9 +133,11 @@ export default function DoorList() {
         >
           {copied ? "link copied. go and delegate" : "hand the door to someone else"}
         </button>
-        <Link href="/supervisor" className="flex h-11 items-center justify-center font-bold underline">
-          check grok&apos;s homework
-        </Link>
+        {!MOCK && (
+          <Link href="/supervisor" className="flex h-11 items-center justify-center font-bold underline">
+            check grok&apos;s homework
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { VerifyResponse } from "@/lib/types";
 import { getTask, putPhoto, spotless as isSpotless, verify } from "../../capture/data";
 import { useQuip } from "../../capture/quip";
-import { card, muted, reward, type Task } from "../../find/data";
+import { card, MOCK, muted, reward, type Task } from "../../find/data";
 import { Emoji, TopBar } from "../../find/ui";
 
 const WAITING = [
@@ -77,11 +77,31 @@ export default function VerifyPage() {
       </>
     );
 
+  // Nothing to prove yet, or nothing left to prove.
+  if (!verdict && task.status !== "claimed")
+    return (
+      <>
+        <TopBar className="sticky top-0 bg-[#EEF3F9]" />
+        <div className="flex flex-col gap-4 px-4">
+          <p className={`p-4 ${card}`}>
+            {task.status === "done" ? "this one already passed. grok does not pay twice." : "nobody has claimed this one yet. claim it before you clean it."}
+          </p>
+          <Link
+            href={task.status === "done" ? "/find/book" : `/find/${task.office_id}`}
+            className="display flex h-14 items-center justify-center rounded-full bg-[#0B0B0C] text-[15px] text-white"
+          >
+            {task.status === "done" ? "see your wallet" : "go and claim it"}
+          </Link>
+        </div>
+      </>
+    );
+
   if (verdict)
     return (
       <>
         <TopBar className="sticky top-0 bg-[#EEF3F9]" />
         <div className="flex flex-col gap-4 px-4 pb-8">
+          {MOCK && <p className="self-start rounded-full bg-[#FFDCCB] px-3 py-1 text-[13px] font-bold">demo mode. not a real grok check</p>}
           <div className={`flex flex-col gap-1.5 rounded-[32px] p-6 ${verdict.passed ? "bg-[#0B0B0C] text-white" : "bg-white"}`}>
             <p className={`text-sm ${verdict.passed ? "text-[#C9D3DF]" : muted}`}>
               {task.title} · grok is {Math.round(verdict.confidence * 100)}% sure
