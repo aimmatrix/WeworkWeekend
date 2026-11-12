@@ -1,6 +1,8 @@
 // The door list's check-ins. They are kept on the device doing the door, like a paper guest list.
 // Move them to a checked_in_at column on tasks when two people need to work the same door.
 
+import { logVisit } from "../find/data";
+
 type Checkins = Record<string, string>; // "<officeId>:<founder>" -> ISO time
 
 export const doorKey = (officeId: string | number, founder: string) => `${officeId}:${founder}`;
@@ -10,7 +12,11 @@ export const getCheckins = (): Checkins => JSON.parse(localStorage.getItem("chec
 export function setCheckin(key: string, inside: boolean): Checkins {
   const all = getCheckins();
   if (!inside) delete all[key];
-  else if (!all[key]) all[key] = new Date().toISOString();
+  else if (!all[key]) {
+    all[key] = new Date().toISOString();
+    const at = key.indexOf(":");
+    logVisit(key.slice(0, at), key.slice(at + 1), "arrived");
+  }
   localStorage.setItem("checkins", JSON.stringify(all));
   return all;
 }

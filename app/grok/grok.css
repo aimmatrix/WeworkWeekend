@@ -1,0 +1,174 @@
+/* Grok Bot: the landlord's chief of staff. Dark chat look, soft blob mascots. */
+.gb {
+  --bg: #141414;
+  --bubble: #262626;
+  --line: #2e2e2e;
+  --muted: #8e8e93;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+.gb .no-scrollbar {
+  scrollbar-width: none;
+}
+.gb .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- blob mascot --------------------------------------------------------- */
+.gb-blob svg {
+  display: block;
+}
+.gb-body {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.gb-eyes {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+/* idle: slow breath, a blink every few seconds, the odd glance */
+.gb-idle .gb-body {
+  animation: gb-breathe 4.2s ease-in-out var(--d, 0s) infinite;
+}
+.gb-idle .gb-eyes {
+  animation: gb-blink 5.4s ease-in-out var(--d, 0s) infinite, gb-glance 9s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes gb-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.025, 0.97); }
+}
+@keyframes gb-blink {
+  0%, 46%, 50%, 100% { scale: 1 1; }
+  48% { scale: 1 0.08; }
+}
+@keyframes gb-glance {
+  0%, 30%, 100% { translate: 0 0; }
+  36%, 52% { translate: -5px 1px; }
+  58%, 74% { translate: 4px -1px; }
+}
+
+/* thinking: squash, stretch and hop, eyes going straight and darting (as in the screenshot's flattened blob) */
+.gb-thinking .gb-body {
+  animation: gb-squish 0.9s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+}
+.gb-thinking .gb-eyes {
+  animation: gb-dart 1.8s steps(1, end) infinite, gb-blink 2.7s ease-in-out infinite;
+}
+@keyframes gb-squish {
+  0% { transform: translateY(0) scale(1.14, 0.72); }
+  35% { transform: translateY(-12%) scale(0.92, 1.1); }
+  55% { transform: translateY(-14%) scale(0.98, 1.02); }
+  80% { transform: translateY(0) scale(1.18, 0.7); }
+  100% { transform: translateY(0) scale(1.14, 0.72); }
+}
+@keyframes gb-dart {
+  0% { translate: -4px 2px; rotate: 24deg; }
+  50% { translate: 4px 2px; rotate: 24deg; }
+}
+
+/* star badge wobble, live dot pulse */
+.gb-star {
+  animation: gb-twinkle 6s ease-in-out infinite;
+}
+@keyframes gb-twinkle {
+  0%, 88%, 100% { transform: rotate(0) scale(1); }
+  92% { transform: rotate(-18deg) scale(1.12); }
+  96% { transform: rotate(10deg) scale(1.04); }
+}
+.gb-live {
+  animation: gb-pulse 1.6s ease-out infinite;
+}
+@keyframes gb-pulse {
+  0% { filter: drop-shadow(0 0 0 rgba(48, 209, 88, 0.7)); }
+  100% { filter: drop-shadow(0 0 7px rgba(48, 209, 88, 0)); }
+}
+
+/* ---- thinking text ------------------------------------------------------- */
+.gb-shimmer {
+  background: linear-gradient(90deg, #8e8e93 0%, #8e8e93 35%, #f5f5f7 50%, #8e8e93 65%, #8e8e93 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gb-shine 1.8s linear infinite;
+}
+@keyframes gb-shine {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+.gb-verb {
+  animation: gb-shine 1.8s linear infinite, gb-rise 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes gb-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- messages ------------------------------------------------------------ */
+.gb-pop {
+  animation: gb-pop 0.48s cubic-bezier(0.18, 0.9, 0.32, 1.25) both;
+  animation-delay: var(--in, 0s);
+}
+.gb-pop-right {
+  transform-origin: 100% 100%;
+}
+.gb-pop-left {
+  transform-origin: 0% 100%;
+}
+@keyframes gb-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.gb-chip {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.gb-chip:active,
+.gb-press:active {
+  transform: scale(0.95);
+}
+.gb-press {
+  transition: transform 0.15s ease;
+}
+
+/* glass header and composer */
+.gb-glass {
+  background: rgba(38, 38, 38, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.gb-fade-top {
+  background: linear-gradient(var(--bg) 35%, rgba(20, 20, 20, 0));
+}
+.gb-fade-bottom {
+  background: linear-gradient(rgba(20, 20, 20, 0), var(--bg) 45%);
+}
+
+/* the unread pill nudges */
+.gb-nudge {
+  animation: gb-nudge 2.4s ease-in-out infinite;
+}
+@keyframes gb-nudge {
+  0%, 70%, 100% { transform: translateY(0); }
+  80% { transform: translateY(-5px); }
+  90% { transform: translateY(1px); }
+}
+
+/* before/after reveal handle */
+.gb-handle {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb *,
+  .gb *::before {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .gb-shimmer {
+    color: #8e8e93;
+  }
+}
