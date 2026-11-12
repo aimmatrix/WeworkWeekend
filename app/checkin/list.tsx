@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { card, loadAll, MOCK, muted, type Office, type Task } from "../find/data";
+import { card, loadAll, MOCK, muted, stayText, type Office, type Task } from "../find/data";
 import { DoorCode } from "./code";
-import { clock, doorKey, getCheckins, setCheckin, shareDoor } from "./door";
+import { clock, doorKey, getCheckins, getCheckouts, setCheckin, shareDoor } from "./door";
 
 /** The door list: who is coming to clean, and who has been let in. Anyone with the link can run it. */
 export default function DoorList() {
   const officeId = useSearchParams().get("office");
   const [data, setData] = useState<{ offices: Office[]; tasks: Task[] } | null>(null);
   const [ins, setIns] = useState<Record<string, string>>({});
+  const [outs, setOuts] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -19,6 +20,7 @@ export default function DoorList() {
     const load = () => {
       loadAll().then(setData, () => setData({ offices: [], tasks: [] }));
       setIns(getCheckins());
+      setOuts(getCheckouts());
     };
     load();
     // Guests claim tasks while the door is open, so keep the list fresh.
@@ -105,6 +107,7 @@ export default function DoorList() {
       <ul className="flex flex-col gap-2">
         {shown.map((g) => {
           const at = ins[g.key];
+          const left = at && outs[g.key] > at ? outs[g.key] : undefined;
           return (
             <li key={g.key} className={`flex min-h-[72px] items-center gap-3 py-2 pl-3.5 pr-3 ${card}`}>
               <span aria-hidden className={`display grid h-11 w-11 shrink-0 place-items-center rounded-full uppercase ${at ? "bg-[#DDF3E6] text-[#0A6B3B]" : "bg-[#EEF3F9]"}`}>
@@ -113,7 +116,7 @@ export default function DoorList() {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-bold">{g.name}</p>
                 <p className={`truncate text-[13px] ${muted}`}>
-                  {at ? `in since ${clock(at)}` : g.jobs} · +{g.hours}h
+                  {left ? `left at ${clock(left)} · on site ${stayText(Date.parse(left) - Date.parse(at))}` : at ? `in since ${clock(at)}` : g.jobs} · +{g.hours}h
                 </p>
               </div>
               <button

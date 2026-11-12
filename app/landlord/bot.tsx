@@ -37,7 +37,7 @@ export function Bot() {
         address: o.address,
         mess_out_of_10: o.dirt_score,
         crew_needed: o.crew_size,
-        jobs: jobsAt(o, tasks).map((j) => ({ job: j.title, room: j.room, credit_hours: j.credit_hours, status: j.status, claimed_by: j.claimed_by, visit: j.when, scanned_in_at: j.inSince })),
+        jobs: jobsAt(o, tasks).map((j) => ({ job: j.title, room: j.room, credit_hours: j.credit_hours, status: j.status, claimed_by: j.claimed_by, visit: j.when, scanned_in_at: j.inSince, left_at: j.leftAt })),
       }));
       const res = await fetch("/api/bot", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question, context }) });
       const out = await res.json().catch(() => ({}));

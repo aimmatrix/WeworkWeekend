@@ -15,6 +15,9 @@ export function setCheckin(key: string, inside: boolean): Checkins {
   return all;
 }
 
+/** Check-outs founders made on this device, keyed like the check-ins. */
+export const getCheckouts = (): Checkins => JSON.parse(localStorage.getItem("checkouts") ?? "{}");
+
 export const clock = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 /** Hands the door to someone else: opens the share sheet, or copies the link. Returns true when copied. */

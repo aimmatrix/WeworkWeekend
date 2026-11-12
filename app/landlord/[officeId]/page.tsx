@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DoorCode } from "../../checkin/code";
 import { clock } from "../../checkin/door";
-import { card, grim, loadAll, muted, reward, staticMap, type Office } from "../../find/data";
+import { card, grim, loadAll, muted, reward, stayText, staticMap, type Office } from "../../find/data";
 import { Emoji } from "../../find/ui";
 import { jobsAt, tally, type Job } from "../data";
 
@@ -126,7 +126,7 @@ export default function LandlordOffice() {
                     ? `${job.room} · nobody yet`
                     : job.status === "done"
                       ? `${job.claimed_by} · passed by grok`
-                      : `${job.claimed_by} · ${job.inSince ? `in since ${clock(job.inSince)}` : job.when}`}
+                      : `${job.claimed_by} · ${job.leftAt ? `left at ${clock(job.leftAt)} · on site ${stayText(Date.parse(job.leftAt) - Date.parse(job.inSince!))}` : job.inSince ? `in since ${clock(job.inSince)}` : job.when}`}
                 </p>
               </div>
               <span className={`display flex shrink-0 items-center rounded-full tabular-nums ${job.status === "done" ? "h-8 bg-[#DDF3E6] px-2.5 text-[13px] text-[#0A6B3B]" : reward(job.credit_hours)}`}>
